@@ -1,0 +1,46 @@
+[project]
+name = "python-clean-architecture"
+version = "0.1.0"
+description = "This project aims to provide a template for clean architecture in Python applications."
+authors = [{ name = "Salt Chang", email = "me@saltchang.com" }]
+readme = "README.md"
+requires-python = ">=3.13, <4.0"
+dependencies = [
+    "asyncpg>=0.30.0",
+    "fastapi>=0.119.1",
+    "greenlet>=3.2.4",
+    "pydantic-settings>=2.11.0",
+    "sqlalchemy>=2.0.44",
+    "uvicorn>=0.38.0",
+    "httpx>=0.28.1",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.1",
+    "colorlog>=6.10.1",
+    "pyright>=1.1.406",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "pytest-cov>=7.0.0",
+]
+
+[tool.isort]
+multi_line_output = 3
+combine_as_imports = true
+include_trailing_comma = false
+
+force_grid_wrap = 2
+line_length = 120
+profile = "black"
+src_paths = ["app", "tests"]
+
+[tool.pyright]
+include = ["app", "tests"]
+extraPaths = ["app"]
+exclude = ["**/node_modules", "**/__pycache__"]
+stubPath = ""
+reportMissingImports = "error"
+reportMissingTypeStubs = false
+typeCheckingMode = "standard"
+pythonVersion = "3.13"
