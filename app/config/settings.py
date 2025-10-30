@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     IS_DEVELOPMENT: bool = False
     LOG_LEVEL: LogLevel = LogLevel.INFO
 
-    DATABASE_URL: str = 'postgresql+asyncpg://postgres:postgres@localhost:5432/python_clean_arch'
+    DATABASE_URL: str = 'postgresql+asyncpg://postgres:postgres@localhost:5432/dr_koala'
     SHOULD_RESET_DATABASE: bool = False
 
 
