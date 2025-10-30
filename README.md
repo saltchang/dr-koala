@@ -1,13 +1,14 @@
-# Python Clean Architecture
+# Dr. Koala
 
 This project aims to provide a template for clean architecture in Python applications.
 
 ## Table of Contents
 
-- [Python Clean Architecture](#python-clean-architecture)
+- [Dr. Koala](#dr-koala)
   - [Table of Contents](#table-of-contents)
   - [Description](#description)
   - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
     - [Setup Environment Variables](#setup-environment-variables)
     - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
     - [Database Setup](#database-setup)
@@ -47,6 +48,15 @@ Based on the concept of clean architecture, this project contains the following 
 
 ## Getting Started
 
+### Prerequisites
+
+- **Python**: 3.13+ (managed via `uv`)
+- **Node.js**: 24.10.0+ (managed via `proto`)
+- **PostgreSQL**: 17
+- **proto**: For managing Node.js versions ([install proto](https://moonrepo.dev/proto))
+- **uv**: For managing Python packages ([install uv](https://docs.astral.sh/uv/))
+- **pnpm**: For managing frontend packages (installed via proto)
+
 ### Setup Environment Variables
 
 First, setup the environment variables, please refer to the `.env.example` file. Ask your team for the values. You can create a new `.env` file by running the following command:
@@ -54,6 +64,11 @@ First, setup the environment variables, please refer to the `.env.example` file.
 ```bash
 cp .env.example .env
 ```
+
+Required environment variables:
+
+- `XAI_API_KEY`: Your xAI API key for Grok
+- `DATABASE_URL`: PostgreSQL connection string
 
 ### Quick Start with Docker Compose
 
@@ -68,7 +83,7 @@ docker compose -f docker-compose.yml up --remove-orphans -d
 In this example, we use PostgreSQL as the database, please make sure you have it installed locally, you can set the `DATABASE_URL` in the `.env` file to connect to your local database:
 
 ```bash
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/python_clean_arch
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/dr_koala
 ```
 
 Or you can use docker compose file we provided to quickly setup one:

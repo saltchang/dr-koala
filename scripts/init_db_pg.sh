@@ -39,12 +39,20 @@ parse_db_url() {
 }
 
 init() {
+    echo "Initializing database..."
     local db_url=$1
 
     if [ -z "$db_url" ]; then
         if [ -n "$DATABASE_URL_ENV" ]; then
+            echo "Initializing database from DATABASE_URL environment variable: $DATABASE_URL_ENV"
             db_url=$DATABASE_URL_ENV
         elif [ -n "$ENV_FILE_PATH" ]; then
+            echo "DATABASE_URL not provided, reading from ENV_FILE: $ENV_FILE_PATH"
+            if [ ! -f "$ENV_FILE_PATH" ]; then
+                echo "Error: ENV_FILE does not exist: $ENV_FILE_PATH"
+                echo "Run \`cp .env.example $ENV_FILE_PATH\` to create a new $ENV_FILE_PATH file"
+                exit 1
+            fi
             db_url=$(read_db_url_from_env_file "$ENV_FILE_PATH")
             if [ -z "$db_url" ]; then
                 echo "Error: DATABASE_URL not found in env file: $ENV_FILE_PATH"
@@ -58,6 +66,7 @@ init() {
         fi
     fi
 
+    echo "Parsing database URL: $db_url"
     read -r username password host port dbname <<<"$(parse_db_url "$db_url")"
 
     echo "Initializing database: $dbname"
@@ -73,6 +82,11 @@ reset() {
         if [ -n "$DATABASE_URL_ENV" ]; then
             db_url=$DATABASE_URL_ENV
         elif [ -n "$ENV_FILE_PATH" ]; then
+            if [ ! -f "$ENV_FILE_PATH" ]; then
+                echo "Error: ENV_FILE does not exist: $ENV_FILE_PATH"
+                echo "Usage: $0 reset [DATABASE_URL]"
+                exit 1
+            fi
             db_url=$(read_db_url_from_env_file "$ENV_FILE_PATH")
             if [ -z "$db_url" ]; then
                 echo "Error: DATABASE_URL not found in env file: $ENV_FILE_PATH"

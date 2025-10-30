@@ -3,15 +3,15 @@ services:
       build:
         context: .
         dockerfile: Dockerfile.dev
-      container_name: python-clean-arch
+      container_name: dr-koala
       ports:
         - "7086:7086"
       depends_on:
         postgresql:
           condition: service_healthy
       environment:
-        APP_NAME: python-clean-arch
+        APP_NAME: dr-koala
         IS_DEVELOPMENT: true
         LOG_LEVEL: INFO
-        DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgresql:5432/python_clean_arch
+        DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgresql:5432/dr_koala
         SHOULD_RESET_DATABASE: true
