@@ -1,0 +1,42 @@
+[intention_planning_agent]
+model = "x-ai/grok-4-fast"
+model_params = { max_tokens = 8192 }
+extra_body = {  }
+system_prompt = """
+
+"""
+
+[search_and_analysis_agent]
+model = "x-ai/grok-4-fast"
+model_params = { max_tokens = 8192 }
+extra_body = {}
+
+system_prompt = """
+
+"""
+
+user_prompt = """
+"""
+
+[generation_agent]
+model = "x-ai/grok-4-fast"
+model_params = { max_tokens = 8192 }
+extra_body = {}
+
+system_prompt = """
+"""
+
+user_prompt = """
+"""
+
+
+[review_agent]
+model = "x-ai/grok-4-fast"
+model_params = { max_tokens = 8192 }
+extra_body = {}
+
+system_prompt = """
+"""
+
+user_prompt = """
+"""

@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+
+- When running python commands, run with `uv` command
+- Available commands are stored in the `Makefile` file
