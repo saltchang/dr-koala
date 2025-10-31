@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
@@ -16,6 +17,7 @@ from repository.psql.connection import psql_db
 from .error_handler import register_exception_handlers
 from .router import (
     health,
+    time,
     user,
 )
 
@@ -23,7 +25,11 @@ openapi_tags: list[dict[str, Any]] = [
     {
         'name': 'Health',
         'description': 'Health check endpoints',
-    }
+    },
+    {
+        'name': 'Time',
+        'description': 'Server time streaming endpoints',
+    },
 ]
 
 logger = logging.getLogger(__name__)
@@ -51,9 +57,18 @@ _fastapi = FastAPI(
     lifespan=lifespan,
 )
 
+_fastapi.add_middleware(
+    CORSMiddleware,
+    allow_origins=['http://localhost:3076', 'http://127.0.0.1:3076'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
+
 register_exception_handlers(_fastapi)
 
 _fastapi.include_router(health.router)
+_fastapi.include_router(time.router)
 _fastapi.include_router(user.router)
 
 

@@ -10,11 +10,18 @@ This project aims to provide a template for clean architecture in Python applica
   - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Setup Environment Variables](#setup-environment-variables)
+      - [Backend Environment Variables](#backend-environment-variables)
+      - [Frontend Environment Variables](#frontend-environment-variables)
     - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
     - [Database Setup](#database-setup)
     - [Start the Server](#start-the-server)
-      - [With uv](#with-uv)
+      - [Running Both Backend and Frontend](#running-both-backend-and-frontend)
+      - [Running Backend Only](#running-backend-only)
+      - [Running Frontend Only](#running-frontend-only)
       - [With VSCode Debugger](#with-vscode-debugger)
+    - [Start the Frontend](#start-the-frontend)
+      - [Manual Setup](#manual-setup)
+      - [Using Make Command](#using-make-command)
     - [Running Tests](#running-tests)
       - [With uv in Command Line](#with-uv-in-command-line)
       - [With Docker](#with-docker)
@@ -59,7 +66,9 @@ Based on the concept of clean architecture, this project contains the following 
 
 ### Setup Environment Variables
 
-First, setup the environment variables, please refer to the `.env.example` file. Ask your team for the values. You can create a new `.env` file by running the following command:
+#### Backend Environment Variables
+
+First, setup the backend environment variables, please refer to the `.env.example` file. Ask your team for the values. You can create a new `.env` file by running the following command:
 
 ```bash
 cp .env.example .env
@@ -70,6 +79,19 @@ Required environment variables:
 - `XAI_API_KEY`: Your xAI API key for Grok
 - `BRAVE_SEARCH_API_KEY`: Your Brave Search API key for web searching
 - `DATABASE_URL`: PostgreSQL connection string
+
+#### Frontend Environment Variables
+
+Setup the frontend environment variables:
+
+```bash
+cd frontend
+cp .env.example .env
+```
+
+Optional environment variables:
+
+- `NEXT_PUBLIC_API_URL`: Backend API URL (default: `http://localhost:7086`)
 
 ### Quick Start with Docker Compose
 
@@ -105,7 +127,24 @@ make init-db
 
 ### Start the Server
 
-#### With uv
+You can start both the backend and frontend together, or run them separately.
+
+#### Running Both Backend and Frontend
+
+To start both servers simultaneously:
+
+```bash
+make run
+```
+
+This will start:
+
+- Backend API server at [http://localhost:7086](http://localhost:7086)
+- Frontend application at [http://localhost:3076](http://localhost:3076)
+
+Press `Ctrl+C` to stop both servers.
+
+#### Running Backend Only
 
 [uv](https://docs.astral.sh/uv/) is used to manage the dependencies and virtual environment, make sure you have it installed before you start.
 
@@ -115,17 +154,29 @@ make init-db
     uv sync
     ```
 
-2. Run the server
+2. Run the backend server
 
     ```bash
-    make run
+    make run-backend
     ```
+
+The backend API will be available at [http://localhost:7086](http://localhost:7086).
+
+#### Running Frontend Only
+
+Make sure you have installed the frontend dependencies first (see [Start the Frontend](#start-the-frontend) section).
+
+```bash
+make run-frontend
+```
+
+The frontend will be available at [http://localhost:3076](http://localhost:3076).
 
 #### With VSCode Debugger
 
 VSCode is recommended for development, before you start, make sure you have installed the [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) and [Python Debugger](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy) extensions.
 
-1. First, you need to install the dependencies, see [With uv](#with-uv)
+1. First, you need to install the dependencies (see [Running Backend Only](#running-backend-only))
 
 2. Then, select the correct python interpreter in VSCode by press `cmd + shift + p` and search `Python: Select Interpreter`. The python interpreter should be the one you installed in the first step, usually you can find the uv-managed virtual environment in the list.
 
@@ -137,11 +188,54 @@ VSCode is recommended for development, before you start, make sure you have inst
 
 4. Choose the "FastAPI" configuration from the VSCode and run it.
 
+### Start the Frontend
+
+The frontend application is built with Next.js and requires Node.js to run.
+
+#### Manual Setup
+
+1. Navigate to the frontend directory
+
+    ```bash
+    cd frontend
+    ```
+
+2. Setup frontend environment variables
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    You can customize the API URL in `.env`:
+    - `NEXT_PUBLIC_API_URL`: Backend API URL (default: `http://localhost:7086`)
+
+3. Install dependencies
+
+    ```bash
+    pnpm i
+    ```
+
+4. Run the development server
+
+    ```bash
+    pnpm dev
+    ```
+
+The frontend application should be available at [http://localhost:3076](http://localhost:3076).
+
+#### Using Make Command
+
+After installing dependencies, you can also use the make command from the project root:
+
+```bash
+make run-frontend
+```
+
 ### Running Tests
 
 #### With uv in Command Line
 
-Make sure you have installed the dependencies with [uv](#with-uv):
+Make sure you have installed the dependencies with [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync

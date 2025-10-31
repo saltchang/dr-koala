@@ -1,4 +1,4 @@
-.PHONY: analyze-dependencies lint format type-check run-unit-tests clean check-all init-db reset-db
+.PHONY: analyze-dependencies lint format type-check run-unit-tests clean check-all init-db reset-db run run-backend run-frontend
 
 PYTHON_PATH = PYTHONPATH=./app:./tests
 TEST_ENV = ENV_FILE=.env.test $(PYTHON_PATH)
@@ -10,10 +10,23 @@ analyze-dependencies:
 	@echo "Analyzing dependencies..."
 	$(APP_PYTHON_PATH) pydeps ./app
 
-# Run Server
+# Run both backend and frontend
 run:
-	@echo "Running the server..."
+	@echo "Starting both backend and frontend..."
+	@trap 'kill 0' INT; \
+	$(MAKE) run-backend & \
+	$(MAKE) run-frontend & \
+	wait
+
+# Run Backend Server
+run-backend:
+	@echo "Running the backend server..."
 	$(APP_PYTHON_PATH) uv run uvicorn app.main:http_api_app --reload --port 7086 --host 0.0.0.0
+
+# Run Frontend Server
+run-frontend:
+	@echo "Running the frontend server..."
+	cd frontend && pnpm dev
 
 # Run the unit tests
 run-unit-tests:
