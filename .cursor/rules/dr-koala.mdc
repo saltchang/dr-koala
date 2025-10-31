@@ -2,9 +2,9 @@
 alwaysApply: true
 ---
 
-This project is "Dr. Koala", an AI-powered web application for answering users' questions by searching the web.
-This project is a simpler version of Perplexity with only minimal features.
-This project is a MVP level project for introducing the multi-agent architecture and LLM-based application development.
+- This project is "Dr. Koala", an AI-powered web application for answering users' questions by searching the web.
+- This project is a simpler version of Perplexity with only minimal features.
+- This project is a MVP level project for introducing the multi-agent architecture and LLM-based application development.
 
 Dr. Koala uses multi-agent architecture for different tasks:
 
@@ -14,3 +14,6 @@ Dr. Koala uses multi-agent architecture for different tasks:
 - **Review Agent**: For reviewing the outcomes and decide whether to perform the optimization tasks or start another process to improve the outcome.
 
 The prompt templates for the agents are stored in the `app/core/constant/agent_configs.toml` file.
+
+- Dr. Koala uses the grok-4-fast model from xAI for AI agents. The API key is stored as `XAI_API_KEY`.
+- Dr. Koala uses the Brave Search API to search the web. The API key is stored as `BRAVE_SEARCH_API_KEY`.

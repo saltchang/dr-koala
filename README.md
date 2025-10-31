@@ -68,6 +68,7 @@ cp .env.example .env
 Required environment variables:
 
 - `XAI_API_KEY`: Your xAI API key for Grok
+- `BRAVE_SEARCH_API_KEY`: Your Brave Search API key for web searching
 - `DATABASE_URL`: PostgreSQL connection string
 
 ### Quick Start with Docker Compose
