@@ -1,4 +1,4 @@
-.PHONY: analyze-dependencies lint format type-check run-unit-tests clean check-all init-db reset-db run run-backend run-frontend
+.PHONY: analyze-dependencies lint format type-check run-unit-tests clean check-all init-db reset-db run run-backend run-frontend run-autogen-example
 
 PYTHON_PATH = PYTHONPATH=./app:./tests
 TEST_ENV = ENV_FILE=.env.test $(PYTHON_PATH)
@@ -73,3 +73,8 @@ init-db:
 reset-db:
 	@echo "Resetting database..."
 	ENV_FILE=.env ./scripts/init_db_pg.sh reset
+
+# Run AutoGen example with Brave Search MCP
+run-autogen-example:
+	@echo "Running AutoGen example with Brave Search..."
+	$(APP_PYTHON_PATH) uv run python app/autogen_example.py

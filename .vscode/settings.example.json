@@ -1,7 +1,10 @@
 {
   "cSpell.words": [
+    "agentchat",
+    "autogen",
     "datname",
     "levelname",
+    "modelcontextprotocol",
     "ondelete",
     "onupdate",
     "PKCS",
@@ -22,7 +25,7 @@
   "plpgsqlLanguageServer.workspaceValidationTargetFiles": [],
   "cursorpyright.analysis.autoImportCompletions": true,
   "cursorpyright.analysis.autoSearchPaths": true,
-  "python.languageServer": "Pylance",
+  "python.languageServer": "None",
   "ruff.enable": true,
   "ruff.organizeImports": true,
   "ruff.fixAll": true

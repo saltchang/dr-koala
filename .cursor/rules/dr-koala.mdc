@@ -15,5 +15,5 @@ Dr. Koala uses multi-agent architecture for different tasks:
 
 The prompt templates for the agents are stored in the `app/core/constant/agent_configs.toml` file.
 
-- Dr. Koala uses the grok-4-fast model from xAI for AI agents. The API key is stored as `XAI_API_KEY`.
+- Dr. Koala uses the grok-4-fast-reasoning model from xAI for AI agents. The API key is stored as `XAI_API_KEY`.
 - Dr. Koala uses the Brave Search API to search the web. The API key is stored as `BRAVE_SEARCH_API_KEY`.

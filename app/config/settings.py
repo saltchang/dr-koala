@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     IS_DEVELOPMENT: bool = False
     LOG_LEVEL: LogLevel = LogLevel.INFO
 
+    XAI_API_KEY: str = ''
+    BRAVE_SEARCH_API_KEY: str = ''
+
     DATABASE_URL: str = 'postgresql+asyncpg://postgres:postgres@localhost:5432/dr_koala'
     SHOULD_RESET_DATABASE: bool = False
 
@@ -29,6 +32,8 @@ IS_DEVELOPMENT = _settings.IS_DEVELOPMENT
 LOG_LEVEL = _settings.LOG_LEVEL
 DATABASE_URL = _settings.DATABASE_URL
 SHOULD_RESET_DATABASE = _settings.SHOULD_RESET_DATABASE
+XAI_API_KEY = _settings.XAI_API_KEY
+BRAVE_SEARCH_API_KEY = _settings.BRAVE_SEARCH_API_KEY
 
 BUILD_VERSION = (
     _settings.APP_VERSION if _settings.COMMIT_HASH is None else f'{_settings.APP_VERSION}_{_settings.COMMIT_HASH}'

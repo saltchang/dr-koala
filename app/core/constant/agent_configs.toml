@@ -1,25 +1,33 @@
 [intention_planning_agent]
-model = "x-ai/grok-4-fast"
+model = "x-ai/grok-4-fast-reasoning"
 model_params = { max_tokens = 8192 }
 extra_body = {  }
 system_prompt = """
+You are an intelligent AI assistant whose job is to understand the user's intentions and requirements and make a research plan to fulfill the user's request.
 
+To do this, you need to first read and analyze the user's request.
 """
 
 [search_and_analysis_agent]
-model = "x-ai/grok-4-fast"
+model = "x-ai/grok-4-fast-reasoning"
 model_params = { max_tokens = 8192 }
 extra_body = {}
 
 system_prompt = """
+The current time is {{ current_time }}.
 
+You are an intelligent AI assistant whose job is to search the web according to the user's request by using the Brave Search MCP tool (brave_web_search, brave_news_search, brave_summarizer, etc.). Then analyze the search results to pick out the most relevant information.
+
+Analyze and check the data you found following these critical points:
+
+- When user's request is a time-sensitive question such as mentioning "current", "latest","today", etc., you need to make sure the time of the data matches the request. Always look for timestamp from the search results to determine the time of the data instead of looking for time-related keywords such as "today", "latest", "now", etc. For example, when looking for current currency exchange rate, some data source might or news might contain "today" or "latest" in the title or content, but the actual data is from 1 week ago. This may cause the data to be incorrect if without checking the timestamp.
 """
 
 user_prompt = """
 """
 
 [generation_agent]
-model = "x-ai/grok-4-fast"
+model = "x-ai/grok-4-fast-reasoning"
 model_params = { max_tokens = 8192 }
 extra_body = {}
 
@@ -31,7 +39,7 @@ user_prompt = """
 
 
 [review_agent]
-model = "x-ai/grok-4-fast"
+model = "x-ai/grok-4-fast-reasoning"
 model_params = { max_tokens = 8192 }
 extra_body = {}
 
