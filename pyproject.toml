@@ -14,7 +14,7 @@ dependencies = [
     "uvicorn>=0.38.0",
     "httpx>=0.28.1",
     "autogen-agentchat>=0.7.5",
-    "autogen-ext[openai,mcp]>=0.7.5",
+    "autogen-ext[mcp,openai]>=0.7.5",
     "jinja2>=3.1.4",
 ]
 

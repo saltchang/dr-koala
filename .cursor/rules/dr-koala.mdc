@@ -8,10 +8,9 @@ alwaysApply: true
 
 Dr. Koala uses multi-agent architecture for different tasks:
 
-- **Intention & Planning Agent**: For understanding the user's intentions, questions, and requirements by analyzing the user's input then planning the search, analysis, and generation tasks. Adjust the current and processing plan if needed.
-- **Search and Analysis Agent**: For searching the web according to the plan. Analyze the search results and generate indexable content.
+- **Primary Agent**: For understanding the user's intentions, questions, and requirements by analyzing the user's input then planning the search, generation, and review tasks. Adjust the current and processing plan if needed.
+- **Search Agent**: For searching the web according to the plan. Analyze the search results and generate indexable content.
 - **Generation Agent**: For generating the final answer based on the analyzed and indexed content.
-- **Review Agent**: For reviewing the outcomes and decide whether to perform the optimization tasks or start another process to improve the outcome.
 
 The prompt templates for the agents are stored in the `app/core/constant/agent_configs.toml` file.
 

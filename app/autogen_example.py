@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 from autogen_agentchat.agents import AssistantAgent
+from autogen_agentchat.tools import AgentTool
 from autogen_agentchat.ui import Console
 from autogen_core.models import ModelInfo
 from autogen_ext.models.openai import OpenAIChatCompletionClient
@@ -18,10 +19,21 @@ async def main() -> None:
     with open(config_path, 'rb') as f:
         agent_configs = tomllib.load(f)
 
-    search_agent_config = agent_configs['search_and_analysis_agent']
-    system_prompt_template = search_agent_config['system_prompt']
+    primary_agent_config = agent_configs['primary_agent']
+    search_agent_config = agent_configs['search_agent']
+    generation_agent_config = agent_configs['generation_agent']
 
-    search_agent_system_prompt = Template(system_prompt_template).render(
+    primary_agent_system_prompt = primary_agent_config['system_prompt']
+    search_agent_system_prompt_template = search_agent_config['system_prompt']
+    generation_agent_system_prompt_template = generation_agent_config['system_prompt']
+
+    primary_agent_system_prompt = Template(primary_agent_system_prompt).render(
+        current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    )
+    search_agent_system_prompt = Template(search_agent_system_prompt_template).render(
+        current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    )
+    generation_agent_system_prompt = Template(generation_agent_system_prompt_template).render(
         current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     )
 
@@ -46,16 +58,38 @@ async def main() -> None:
     )
 
     async with McpWorkbench(brave_search_server_params) as brave_search_mcp:
-        search_agent = AssistantAgent(
+        web_search_agent = AssistantAgent(
             'web_search_assistant',
+            description='A web search assistant that can search the web.',
             model_client=model_client,
-            workbench=brave_search_mcp,
-            model_client_stream=False,
-            max_tool_iterations=5,
             system_message=search_agent_system_prompt,
+            model_client_stream=True,
+            workbench=brave_search_mcp,
         )
 
-        await Console(search_agent.run_stream(task='今天的台股加權指數多少'))
+        web_search_agent_tool = AgentTool(web_search_agent, return_value_as_last_message=True)
+
+        generation_agent = AssistantAgent(
+            'generation_agent',
+            description='A generation assistant that can generate a summary based on the search results.',
+            model_client=model_client,
+            system_message=generation_agent_system_prompt,
+            model_client_stream=True,
+            workbench=brave_search_mcp,
+        )
+
+        generation_agent_tool = AgentTool(generation_agent, return_value_as_last_message=True)
+
+        primary_agent = AssistantAgent(
+            'primary_agent',
+            model_client=model_client,
+            tools=[web_search_agent_tool, generation_agent_tool],
+            system_message=primary_agent_system_prompt,
+            model_client_stream=True,
+            max_tool_iterations=20,
+        )
+
+        await Console(primary_agent.run_stream(task='今天的台股加權指數多少'))
 
 
 if __name__ == '__main__':
