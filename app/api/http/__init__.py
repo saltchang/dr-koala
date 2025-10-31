@@ -16,6 +16,7 @@ from repository.psql.connection import psql_db
 
 from .error_handler import register_exception_handlers
 from .router import (
+    agent,
     health,
     time,
     user,
@@ -29,6 +30,10 @@ openapi_tags: list[dict[str, Any]] = [
     {
         'name': 'Time',
         'description': 'Server time streaming endpoints',
+    },
+    {
+        'name': 'Agent',
+        'description': 'AI agent endpoints for web search and generation',
     },
 ]
 
@@ -70,6 +75,7 @@ register_exception_handlers(_fastapi)
 _fastapi.include_router(health.router)
 _fastapi.include_router(time.router)
 _fastapi.include_router(user.router)
+_fastapi.include_router(agent.router)
 
 
 @_fastapi.get('/', include_in_schema=False)

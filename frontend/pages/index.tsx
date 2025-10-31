@@ -17,6 +17,11 @@ export default function Home() {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [query, setQuery] = useState<string>("");
+  const [agentResponse, setAgentResponse] = useState<string>("");
+  const [isAgentLoading, setIsAgentLoading] = useState<boolean>(false);
+  const [agentError, setAgentError] = useState<string | null>(null);
+
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7086";
     const eventSource = new EventSource(`${apiUrl}/api/time/stream`);
@@ -42,6 +47,74 @@ export default function Home() {
     };
   }, []);
 
+  const handleAgentQuery = async () => {
+    if (!query.trim()) {
+      setAgentError("Please enter a question");
+      return;
+    }
+
+    setIsAgentLoading(true);
+    setAgentResponse("");
+    setAgentError(null);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7086";
+      const response = await fetch(`${apiUrl}/api/agent/stream`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error("No response body");
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = JSON.parse(line.slice(6));
+            
+            if (data.error) {
+              setAgentError(data.error);
+              setIsAgentLoading(false);
+              return;
+            }
+            
+            if (data.done) {
+              setIsAgentLoading(false);
+              return;
+            }
+            
+            if (data.content) {
+              setAgentResponse((prev) => prev + data.content);
+            }
+          }
+        }
+      }
+
+      setIsAgentLoading(false);
+    } catch (err) {
+      console.error("Agent query error:", err);
+      setAgentError("Failed to get response from agent");
+      setIsAgentLoading(false);
+    }
+  };
+
   return (
     <div
       className={`${geistSans.className} ${geistMono.className} flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black`}
@@ -57,9 +130,51 @@ export default function Home() {
         />
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Dr. Koala - Server Time Demo
+            Dr. Koala - AI Search Assistant
           </h1>
-          <div className="flex flex-col gap-4 w-full max-w-md">
+          
+          <div className="flex flex-col gap-4 w-full max-w-2xl">
+            <div className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+              <h2 className="text-lg font-medium text-black dark:text-zinc-50 mb-4">
+                Ask Me Anything
+              </h2>
+              <div className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyUp={(e) => e.key === "Enter" && !isAgentLoading && handleAgentQuery()}
+                  placeholder="Enter your question..."
+                  className="w-full px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-black dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isAgentLoading}
+                />
+                <button
+                  onClick={handleAgentQuery}
+                  disabled={isAgentLoading}
+                  className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-400 disabled:cursor-not-allowed text-white font-medium transition-colors"
+                >
+                  {isAgentLoading ? "Thinking..." : "Search"}
+                </button>
+              </div>
+              {agentError && (
+                <p className="mt-3 text-sm text-red-600 dark:text-red-400">
+                  {agentError}
+                </p>
+              )}
+              {agentResponse && (
+                <div className="mt-4 p-4 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                  <h3 className="text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">
+                    Response:
+                  </h3>
+                  <div className="text-sm text-black dark:text-zinc-50 whitespace-pre-wrap">
+                    {agentResponse}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 w-full max-w-2xl">
             <div className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-medium text-black dark:text-zinc-50">
@@ -86,7 +201,7 @@ export default function Home() {
               )}
             </div>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              This time is streamed from the server using Server-Sent Events (SSE) and updates every second.
+              Server time demo using Server-Sent Events (SSE), updates every second.
             </p>
           </div>
         </div>
