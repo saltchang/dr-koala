@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 ---
-We are in a clean architecture codebase. In the `app/` directory there are folders for different layers of the backend application. `adapter/` folder is for third party services layer. `api/` folder is for the user interaction layer such as FastAPI and CLI. `config/` folder is for system-wide configuration such as env vars and logging setting. `core/` folder is for the models and enums or other constants that defined for core business logic. `service/` folder is for the use cases of the core business logic. `repository/` is for the data source layer such as PostgreSQL and Redis. `utility/` folder is for the general pure functions that not for specific business logic. `worker/` folder to put the worker and tasks such as celery. We use Protocol instead of ABC for defining abstraction.
+We are in a clean architecture codebase. The `app/` directory is the backend application. In the `app/` directory there are folders for different layers of the backend application. `adapter/` folder is for third party services layer. `api/` folder is for the user interaction layer such as FastAPI and CLI. `config/` folder is for system-wide configuration such as env vars and logging setting. `core/` folder is for the models and enums or other constants that defined for core business logic. `service/` folder is for the use cases of the core business logic. `repository/` is for the data source layer such as PostgreSQL and Redis. `utility/` folder is for the general pure functions that not for specific business logic. `worker/` folder to put the worker and tasks such as celery. We use Protocol instead of ABC for defining abstraction.
 
 The frontend application is in the `frontend/` directory.
 

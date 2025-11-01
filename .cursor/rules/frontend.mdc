@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+The frontend application is in the `frontend/` directory.
+The frontend application is built with React, Next.js, Tailwind CSS, and shadcn/ui.
+The package manager is pnpm.
+
+The frontend project structure:
+
+```txt
+.
+└── frontend/             # Dr. Koala frontend application
+    ├── assets/           # Static assets
+    ├── components/       # Shared components
+    │   └── ui/           # Basic UI components that built by shadcn/ui
+    ├── hooks/            # Custom React hooks
+    ├── modules/          # Page modules
+    ├── pages/            # Next.js page routes
+    ├── public/           # Static public assets
+    ├── styles/           # Global styles
+    ├── types/            # TypeScript types, interfaces
+    ├── utils/            # Utility functions
+    ├── .env.example      # Environment variables example
+    ├── biome.json        # Biome configuration
+    ├── components.json   # shadcn/ui components configuration
+    ├── next.config.ts    # Next.js configuration
+    ├── package.json      # Node.js package manager configuration
+    └── tsconfig.json     # TypeScript configuration
+```

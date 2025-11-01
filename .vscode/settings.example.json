@@ -10,7 +10,8 @@
     "PKCS",
     "poolclass",
     "SECP",
-    "selectin"
+    "selectin",
+    "tabler"
   ],
   "[python]": {
     "diffEditor.ignoreTrimWhitespace": false,
@@ -21,6 +22,24 @@
     },
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
   "plpgsqlLanguageServer.enableExecuteFileQueryCommand": false,
   "plpgsqlLanguageServer.workspaceValidationTargetFiles": [],
   "cursorpyright.analysis.autoImportCompletions": true,
@@ -28,5 +47,11 @@
   "python.languageServer": "None",
   "ruff.enable": true,
   "ruff.organizeImports": true,
-  "ruff.fixAll": true
+  "ruff.fixAll": true,
+  "biome.lsp.bin": "frontend/node_modules/.bin/biome",
+  "biome.enabled": true,
+  "biome.configurationPath": "frontend/biome.json",
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore"
 }
