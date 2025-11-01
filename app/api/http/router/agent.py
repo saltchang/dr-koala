@@ -6,6 +6,8 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from config.settings import MAX_CONVERSATION_CONTEXT_TURNS
+from repository.memory.conversation import ConversationMemoryRepository
 from service.agent_service import AgentService
 
 router = APIRouter(prefix='/api', tags=['Agent'])
@@ -16,24 +18,47 @@ class AgentQueryRequest(BaseModel):
     """Request model for agent query."""
 
     query: str
+    session_id: str | None = None
 
 
-async def agent_response_stream(query: str):
+async def agent_response_stream(query: str, session_id: str | None = None):
     """
     Generate server-sent events with agent responses.
 
     Args:
         query: The user's question
+        session_id: Optional session ID for conversation continuity
     """
     agent_service = AgentService()
+    conversation_repo = ConversationMemoryRepository()
+
+    if session_id:
+        conversation = conversation_repo.get_session(session_id)
+        if conversation is None:
+            conversation = conversation_repo.create_session()
+            session_id = conversation.session_id
+    else:
+        conversation = conversation_repo.create_session()
+        session_id = conversation.session_id
+
+    yield f'data: {json.dumps({"session_id": session_id})}\n\n'
 
     try:
-        async for chunk in agent_service.run_agent_stream(task=query):
+        conversation_repo.add_message(session_id, 'user', query)
+
+        conversation_history = conversation_repo.get_recent_messages(session_id, MAX_CONVERSATION_CONTEXT_TURNS)
+
+        full_response = ''
+        async for chunk in agent_service.run_agent_stream(
+            task=query, conversation_history=conversation_history, max_context_turns=MAX_CONVERSATION_CONTEXT_TURNS
+        ):
             if chunk:
+                full_response += chunk
                 yield f'data: {json.dumps({"content": chunk})}\n\n'
 
-                # this allows other tasks of the event loop to run, and prevents blocking the streaming response
                 await asyncio.sleep(0)
+
+        conversation_repo.add_message(session_id, 'assistant', full_response)
 
         yield f'data: {json.dumps({"done": True})}\n\n'
 
@@ -48,13 +73,34 @@ async def stream_agent_response(request: AgentQueryRequest):
     Stream agent responses via Server-Sent Events (SSE).
 
     Args:
-        request: Contains the user's query
+        request: Contains the user's query and optional session_id
     """
     return StreamingResponse(
-        agent_response_stream(request.query),
+        agent_response_stream(request.query, request.session_id),
         media_type='text/event-stream',
         headers={
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive',
         },
     )
+
+
+@router.get('/agent/conversation/{session_id}')
+async def get_conversation_history(session_id: str):
+    """
+    Get conversation history for a session.
+
+    Args:
+        session_id: Session identifier
+
+    Returns:
+        Conversation turns with query-response pairs
+    """
+    conversation_repo = ConversationMemoryRepository()
+    conversation = conversation_repo.get_session(session_id)
+
+    if conversation is None:
+        return {'error': 'Session not found', 'turns': []}
+
+    turns = conversation.get_turns()
+    return {'session_id': session_id, 'turns': [turn.model_dump() for turn in turns]}

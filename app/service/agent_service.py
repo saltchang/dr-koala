@@ -11,7 +11,8 @@ from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams
 from jinja2 import Template
 
-from config.settings import BRAVE_SEARCH_API_KEY, XAI_API_KEY
+from config.settings import BRAVE_SEARCH_API_KEY, MAX_CONVERSATION_CONTEXT_TURNS, XAI_API_KEY
+from core.model.conversation import Message
 
 
 class AgentService:
@@ -37,17 +38,34 @@ class AgentService:
 
         return primary_prompt, search_prompt, generation_prompt
 
-    async def run_agent_stream(self, task: str) -> AsyncIterator[str]:
+    async def run_agent_stream(
+        self,
+        task: str,
+        conversation_history: list[Message] | None = None,
+        max_context_turns: int = MAX_CONVERSATION_CONTEXT_TURNS,
+    ) -> AsyncIterator[str]:
         """
         Run the multi-agent system with streaming response.
 
         Args:
             task: The user's question or task
+            conversation_history: Optional conversation history for context
+            max_context_turns: Maximum number of conversation turns to include in context (default from settings)
 
         Yields:
             Streaming text chunks from the agents
         """
         primary_prompt, search_prompt, generation_prompt = self._render_system_prompts()
+
+        if conversation_history:
+            max_messages = max_context_turns * 2
+            limited_history: list[Message] = (
+                conversation_history[-max_messages:]
+                if len(conversation_history) > max_messages
+                else conversation_history
+            )
+        else:
+            limited_history = []
 
         model_client = OpenAIChatCompletionClient(
             base_url='https://api.x.ai/v1',
@@ -101,6 +119,14 @@ class AgentService:
                 max_tool_iterations=20,
             )
 
-            async for event in primary_agent.run_stream(task=task):
+            if limited_history:
+                history_context = '\n\n'.join(
+                    [f'{"User" if msg.role == "user" else "Assistant"}: {msg.content}' for msg in limited_history]
+                )
+                full_task = f'Previous conversation:\n{history_context}\n\nCurrent question: {task}'
+            else:
+                full_task = task
+
+            async for event in primary_agent.run_stream(task=full_task):
                 if isinstance(event, ModelClientStreamingChunkEvent):
                     yield event.content

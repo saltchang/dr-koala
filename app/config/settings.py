@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     DATABASE_URL: str = 'postgresql+asyncpg://postgres:postgres@localhost:5432/dr_koala'
     SHOULD_RESET_DATABASE: bool = False
 
+    MAX_CONVERSATION_CONTEXT_TURNS: int = 5
+    SESSION_CLEANUP_HOURS: int = 1
+
 
 _settings = Settings()
 
@@ -34,6 +37,8 @@ DATABASE_URL = _settings.DATABASE_URL
 SHOULD_RESET_DATABASE = _settings.SHOULD_RESET_DATABASE
 XAI_API_KEY = _settings.XAI_API_KEY
 BRAVE_SEARCH_API_KEY = _settings.BRAVE_SEARCH_API_KEY
+MAX_CONVERSATION_CONTEXT_TURNS = _settings.MAX_CONVERSATION_CONTEXT_TURNS
+SESSION_CLEANUP_HOURS = _settings.SESSION_CLEANUP_HOURS
 
 BUILD_VERSION = (
     _settings.APP_VERSION if _settings.COMMIT_HASH is None else f'{_settings.APP_VERSION}_{_settings.COMMIT_HASH}'
