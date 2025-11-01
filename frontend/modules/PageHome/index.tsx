@@ -28,6 +28,7 @@ function PageHome({ setConversations }: PageHomeProps) {
   const [currentResponse, setCurrentResponse] = useState<string>('');
   const [isAgentLoading, setIsAgentLoading] = useState<boolean>(false);
   const [agentError, setAgentError] = useState<string | null>(null);
+  const [isComposing, setIsComposing] = useState<boolean>(false);
 
   const handleAgentQuery = useCallback(async () => {
     if (!query.trim()) {
@@ -193,8 +194,13 @@ function PageHome({ setConversations }: PageHomeProps) {
             <ChatInput
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyUp={(e) =>
-                e.key === 'Enter' && !isAgentLoading && handleAgentQuery()
+              onCompositionStart={() => setIsComposing(true)}
+              onCompositionEnd={() => setIsComposing(false)}
+              onKeyDown={(e) =>
+                e.key === 'Enter' &&
+                !isAgentLoading &&
+                !isComposing &&
+                handleAgentQuery()
               }
               onSend={handleAgentQuery}
               placeholder="Ask Dr. Koala anything..."
