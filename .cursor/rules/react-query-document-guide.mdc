@@ -1,0 +1,161 @@
+---
+description: This rule is the guide for the documentation of tanstack-query, aka react-query
+alwaysApply: false
+---
+# TanStack Query Documentation Guide
+
+## Getting Started
+
+### react
+
+- [Overview](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/overview.md)
+- [Installation](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/installation.md)
+- [Quick Start](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/quick-start.md)
+- [Devtools](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/devtools.md)
+- [Videos & Talks](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/videos.md)
+- [Comparison](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/comparison.md)
+- [TypeScript](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/typescript.md)
+- [GraphQL](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/graphql.md)
+- [React Native](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/react-native.md)
+
+### solid
+
+- [Overview](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/solid/overview.md)
+- [Quick Start](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/solid/quick-start.md)
+- [Installation](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/solid/installation.md)
+- [Devtools](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/solid/devtools.md)
+- [TypeScript](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/solid/typescript.md)
+
+## Guides & Concepts
+
+### react
+
+- [Important Defaults](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/important-defaults.md)
+- [Queries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/queries.md)
+- [Query Keys](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/query-keys.md)
+- [Query Functions](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/query-functions.md)
+- [Query Options](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/query-options.md)
+- [Network Mode](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/network-mode.md)
+- [Parallel Queries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/parallel-queries.md)
+- [Dependent Queries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/dependent-queries.md)
+- [Background Fetching Indicators](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/background-fetching-indicators.md)
+- [Window Focus Refetching](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/window-focus-refetching.md)
+- [Disabling/Pausing Queries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/disabling-queries.md)
+- [Query Retries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/query-retries.md)
+- [Paginated Queries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/paginated-queries.md)
+- [Infinite Queries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/infinite-queries.md)
+- [Initial Query Data](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/initial-query-data.md)
+- [Placeholder Query Data](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/placeholder-query-data.md)
+- [Mutations](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/mutations.md)
+- [Query Invalidation](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/query-invalidation.md)
+- [Invalidation from Mutations](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/invalidations-from-mutations.md)
+- [Updates from Mutation Responses](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/updates-from-mutation-responses.md)
+- [Optimistic Updates](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/optimistic-updates.md)
+- [Query Cancellation](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/query-cancellation.md)
+- [Scroll Restoration](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/scroll-restoration.md)
+- [Filters](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/filters.md)
+- [Performance & Request Waterfalls](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/request-waterfalls.md)
+- [Prefetching & Router Integration](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/prefetching.md)
+- [Server Rendering & Hydration](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/ssr.md)
+- [Advanced Server Rendering](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/advanced-ssr.md)
+- [Caching](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/caching.md)
+- [Render Optimizations](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/render-optimizations.md)
+- [Default Query Fn](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/default-query-function.md)
+- [Suspense](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/suspense.md)
+- [Testing](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/testing.md)
+- [Does this replace [Redux, MobX, etc]?](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/does-this-replace-client-state.md)
+- [Migrating to v3](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/migrating-to-react-query-3.md)
+- [Migrating to v4](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/migrating-to-react-query-4.md)
+- [Migrating to v5](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/guides/migrating-to-v5.md)
+
+## API Reference
+
+- [QueryClient](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/QueryClient.md)
+- [QueryCache](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/QueryCache.md)
+- [MutationCache](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/MutationCache.md)
+- [QueryObserver](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/QueryObserver.md)
+- [InfiniteQueryObserver](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/InfiniteQueryObserver.md)
+- [QueriesObserver](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/QueriesObserver.md)
+- [streamedQuery](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/streamedQuery.md)
+- [focusManager](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/focusManager.md)
+- [onlineManager](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/onlineManager.md)
+- [notifyManager](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/reference/notifyManager.md)
+
+### react
+
+- [useQuery](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useQuery.md)
+- [useQueries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useQueries.md)
+- [useInfiniteQuery](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useInfiniteQuery.md)
+- [useMutation](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useMutation.md)
+- [useIsFetching](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useIsFetching.md)
+- [useIsMutating](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useIsMutating.md)
+- [useMutationState](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useMutationState.md)
+- [useSuspenseQuery](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useSuspenseQuery.md)
+- [useSuspenseInfiniteQuery](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useSuspenseInfiniteQuery.md)
+- [useSuspenseQueries](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useSuspenseQueries.md)
+- [QueryClientProvider](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/QueryClientProvider.md)
+- [useQueryClient](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useQueryClient.md)
+- [queryOptions](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/queryOptions.md)
+- [infiniteQueryOptions](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/infiniteQueryOptions.md)
+- [mutationOptions](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/mutationOptions.md)
+- [usePrefetchQuery](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/usePrefetchQuery.md)
+- [usePrefetchInfiniteQuery](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/usePrefetchInfiniteQuery.md)
+- [QueryErrorResetBoundary](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/QueryErrorResetBoundary.md)
+- [useQueryErrorResetBoundary](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/useQueryErrorResetBoundary.md)
+- [hydration](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/reference/hydration.md)
+
+## ESLint
+
+- [ESLint Plugin Query](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/eslint/eslint-plugin-query.md)
+- [Exhaustive Deps](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/eslint/exhaustive-deps.md)
+- [Stable Query Client](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/eslint/stable-query-client.md)
+- [No Rest Destructuring](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/eslint/no-rest-destructuring.md)
+- [No Unstable Deps](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/eslint/no-unstable-deps.md)
+- [Infinite Query Property Order](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/eslint/infinite-query-property-order.md)
+
+## Community Resources
+
+### react
+
+- [TkDodo's Blog](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/community/tkdodos-blog.md)
+- [Community Projects](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/community/community-projects.md)
+
+## Examples
+
+### react
+
+- [Simple](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/simple.md)
+- [Basic](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/basic.md)
+- [Basic w/ GraphQL-Request](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/basic-graphql-request.md)
+- [Auto Refetching / Polling / Realtime](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/auto-refetching.md)
+- [Optimistic Updates (UI)](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/optimistic-updates-ui.md)
+- [Optimistic Updates (Cache)](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/optimistic-updates-cache.md)
+- [Pagination](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/pagination.md)
+- [Load-More & Infinite Scroll](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/load-more-infinite-scroll.md)
+- [Infinite query with Max pages](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/infinite-query-with-max-pages.md)
+- [Suspense](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/suspense.md)
+- [Default Query Function](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/default-query-function.md)
+- [Playground](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/playground.md)
+- [Prefetching](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/prefetching.md)
+- [Star Wars](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/star-wars.md)
+- [Rick And Morty](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/rick-morty.md)
+- [Next.js Pages](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/nextjs.md)
+- [Next.js app with prefetching](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/nextjs-app-prefetching.md)
+- [Next.js app with streaming](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/nextjs-suspense-streaming.md)
+- [React Native](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/react-native.md)
+- [React Router](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/react-router.md)
+- [Offline Queries and Mutations](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/offline.md)
+- [Algolia](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/algolia.md)
+- [Shadow DOM](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/shadow-dom.md)
+- [Devtools Embedded Panel](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/devtools-panel.md)
+- [Chat example (streaming)](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/examples/chat.md)
+
+## Plugins
+
+### react
+
+- [persistQueryClient](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/plugins/persistQueryClient.md)
+- [createSyncStoragePersister](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/plugins/createSyncStoragePersister.md)
+- [createAsyncStoragePersister](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/plugins/createAsyncStoragePersister.md)
+- [broadcastQueryClient (Experimental)](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/plugins/broadcastQueryClient.md)
+- [createPersister (Experimental)](https://raw.githubusercontent.com/TanStack/query/refs/heads/main/docs/framework/react/plugins/createPersister.md)

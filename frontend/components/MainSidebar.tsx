@@ -1,4 +1,5 @@
 import { MessageCirclePlusIcon, MessageSquareIcon } from 'lucide-react';
+import { useRouter } from 'next/router';
 import { memo, type ReactNode } from 'react';
 import svgDrKoalaLogo from '@/assets/dr-koala.svg';
 import SVG from '@/components/SVG';
@@ -21,10 +22,14 @@ interface MainSidebarProps {
 }
 
 function MainSidebar({ conversations }: MainSidebarProps) {
+  const router = useRouter();
+
   const handleNewConversation = () => {
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('newConversation'));
-    }
+    router.push('/');
+  };
+
+  const handleConversationClick = (conversationId: string) => {
+    router.push(`/topic/${conversationId}`);
   };
 
   return (
@@ -34,11 +39,7 @@ function MainSidebar({ conversations }: MainSidebarProps) {
           <SVG src={svgDrKoalaLogo.src} className="w-8 h-8" />
           <h2 className="text-lg font-semibold">Dr. Koala</h2>
         </div>
-        <Button
-          onClick={handleNewConversation}
-          className="w-full gap-2"
-          variant="outline"
-        >
+        <Button onClick={handleNewConversation} className="w-full gap-2" variant="outline">
           New Topic
           <MessageCirclePlusIcon className="size-4" />
         </Button>
@@ -48,9 +49,7 @@ function MainSidebar({ conversations }: MainSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {conversations.length === 0 ? (
-                <div className="px-2 py-4 text-sm text-muted-foreground text-center">
-                  No conversations yet
-                </div>
+                <div className="px-2 py-4 text-sm text-muted-foreground text-center">No conversations yet</div>
               ) : (
                 conversations.map((conversation) => (
                   <SidebarMenuItem key={conversation.id}>
@@ -58,17 +57,14 @@ function MainSidebar({ conversations }: MainSidebarProps) {
                       <button
                         type="button"
                         className="flex flex-col items-start gap-1 w-full"
+                        onClick={() => handleConversationClick(conversation.id)}
                       >
                         <div className="flex items-center gap-2 w-full">
                           <MessageSquareIcon className="h-4 w-4" />
-                          <span className="truncate flex-1 text-left">
-                            {conversation.query}
-                          </span>
+                          <span className="truncate flex-1 text-left">{conversation.query}</span>
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(
-                            conversation.timestamp,
-                          ).toLocaleTimeString()}
+                          {new Date(conversation.timestamp).toLocaleTimeString()}
                         </span>
                       </button>
                     </SidebarMenuButton>

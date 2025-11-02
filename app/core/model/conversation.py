@@ -1,16 +1,17 @@
 """Conversation and message data models."""
 
 from datetime import UTC, datetime
-from typing import Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
+
+from core.enum.conversation import MessageRole
 
 
 class Message(BaseModel):
     """Single message in a conversation."""
 
-    role: Literal['user', 'assistant']
+    role: MessageRole
     content: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
@@ -32,7 +33,7 @@ class Conversation(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    def add_message(self, role: Literal['user', 'assistant'], content: str) -> None:
+    def add_message(self, role: MessageRole, content: str) -> None:
         """Add a message to the conversation."""
         self.messages.append(Message(role=role, content=content))
         self.updated_at = datetime.now(UTC)
@@ -62,10 +63,10 @@ class Conversation(BaseModel):
         current_timestamp: datetime | None = None
 
         for message in self.messages:
-            if message.role == 'user':
+            if message.role == MessageRole.USER:
                 current_query = message.content
                 current_timestamp = message.timestamp
-            elif message.role == 'assistant' and current_query is not None:
+            elif message.role == MessageRole.ASSISTANT and current_query is not None:
                 turns.append(
                     ConversationTurn(
                         query=current_query,

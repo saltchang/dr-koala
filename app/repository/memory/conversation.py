@@ -1,8 +1,8 @@
 """In-memory conversation repository implementation."""
 
 from datetime import UTC, datetime, timedelta
-from typing import Literal
 
+from core.enum.conversation import MessageRole
 from core.model.conversation import Conversation, Message
 from utility.decorator import singleton
 
@@ -41,7 +41,7 @@ class ConversationMemoryRepository:
         """
         return self._sessions.get(session_id)
 
-    def add_message(self, session_id: str, role: Literal['user', 'assistant'], content: str) -> None:
+    def add_message(self, session_id: str, role: MessageRole, content: str) -> None:
         """
         Add a message to an existing conversation.
 

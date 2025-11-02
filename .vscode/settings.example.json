@@ -4,6 +4,7 @@
     "autogen",
     "datname",
     "levelname",
+    "llms",
     "modelcontextprotocol",
     "ondelete",
     "onupdate",

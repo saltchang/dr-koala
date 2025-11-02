@@ -27,3 +27,5 @@ The frontend project structure:
     ├── package.json      # Node.js package manager configuration
     └── tsconfig.json     # TypeScript configuration
 ```
+
+For more information about shadcn, refer to the official [llms.txt](https://ui.shadcn.com/llms.txt) document.

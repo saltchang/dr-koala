@@ -3,10 +3,11 @@ import json
 import logging
 
 from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 from config.settings import MAX_CONVERSATION_CONTEXT_TURNS
+from core.enum.conversation import MessageRole
 from repository.memory.conversation import ConversationMemoryRepository
 from service.agent_service import AgentService
 
@@ -44,7 +45,7 @@ async def agent_response_stream(query: str, session_id: str | None = None):
     yield f'data: {json.dumps({"session_id": session_id})}\n\n'
 
     try:
-        conversation_repo.add_message(session_id, 'user', query)
+        conversation_repo.add_message(session_id, MessageRole.USER, query)
 
         conversation_history = conversation_repo.get_recent_messages(session_id, MAX_CONVERSATION_CONTEXT_TURNS)
 
@@ -58,7 +59,7 @@ async def agent_response_stream(query: str, session_id: str | None = None):
 
                 await asyncio.sleep(0)
 
-        conversation_repo.add_message(session_id, 'assistant', full_response)
+        conversation_repo.add_message(session_id, MessageRole.ASSISTANT, full_response)
 
         yield f'data: {json.dumps({"done": True})}\n\n'
 
@@ -94,7 +95,7 @@ async def get_conversation_history(session_id: str):
         session_id: Session identifier
 
     Returns:
-        Conversation turns with query-response pairs
+        Conversation messages with role, content, and timestamp
     """
     conversation_repo = ConversationMemoryRepository()
     conversation = conversation_repo.get_session(session_id)
@@ -102,5 +103,12 @@ async def get_conversation_history(session_id: str):
     if conversation is None:
         return {'error': 'Session not found', 'turns': []}
 
-    turns = conversation.get_turns()
-    return {'session_id': session_id, 'turns': [turn.model_dump() for turn in turns]}
+    messages = [
+        {
+            'role': msg.role.value,
+            'content': msg.content,
+            'timestamp': msg.timestamp.isoformat(),
+        }
+        for msg in conversation.messages
+    ]
+    return JSONResponse(content={'session_id': session_id, 'turns': messages})
