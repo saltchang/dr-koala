@@ -15,21 +15,21 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from '@/components/ui/sidebar';
-import type { Conversation } from '@/types/conversation';
+import type { TopicSession } from '@/types/topicSession';
 
 interface MainSidebarProps {
-  conversations: Conversation[];
+  topicSessions: TopicSession[];
 }
 
-function MainSidebar({ conversations }: MainSidebarProps) {
+function MainSidebar({ topicSessions }: MainSidebarProps) {
   const router = useRouter();
 
-  const handleNewConversation = () => {
+  const handleNewTopicSession = () => {
     router.push('/');
   };
 
-  const handleConversationClick = (conversationId: string) => {
-    router.push(`/topic/${conversationId}`);
+  const handleTopicSessionClick = (topicSessionId: string) => {
+    router.push(`/topic/${topicSessionId}`);
   };
 
   return (
@@ -39,7 +39,7 @@ function MainSidebar({ conversations }: MainSidebarProps) {
           <SVG src={svgDrKoalaLogo.src} className="w-8 h-8" />
           <h2 className="text-lg font-semibold">Dr. Koala</h2>
         </div>
-        <Button onClick={handleNewConversation} className="w-full gap-2" variant="outline">
+        <Button onClick={handleNewTopicSession} className="w-full gap-2" variant="outline">
           New Topic
           <MessageCirclePlusIcon className="size-4" />
         </Button>
@@ -48,23 +48,23 @@ function MainSidebar({ conversations }: MainSidebarProps) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {conversations.length === 0 ? (
-                <div className="px-2 py-4 text-sm text-muted-foreground text-center">No conversations yet</div>
+              {topicSessions.length === 0 ? (
+                <div className="px-2 py-4 text-sm text-muted-foreground text-center">No topicSessions yet</div>
               ) : (
-                conversations.map((conversation) => (
-                  <SidebarMenuItem key={conversation.id}>
+                topicSessions.map((topicSession) => (
+                  <SidebarMenuItem key={topicSession.id}>
                     <SidebarMenuButton asChild>
                       <button
                         type="button"
                         className="flex flex-col items-start gap-1 w-full"
-                        onClick={() => handleConversationClick(conversation.id)}
+                        onClick={() => handleTopicSessionClick(topicSession.id)}
                       >
                         <div className="flex items-center gap-2 w-full">
                           <MessageSquareIcon className="h-4 w-4" />
-                          <span className="truncate flex-1 text-left">{conversation.query}</span>
+                          <span className="truncate flex-1 text-left">{topicSession.query}</span>
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(conversation.timestamp).toLocaleTimeString()}
+                          {new Date(topicSession.timestamp).toLocaleTimeString()}
                         </span>
                       </button>
                     </SidebarMenuButton>

@@ -1,49 +1,49 @@
-"""In-memory conversation repository implementation."""
+"""In-memory session repository implementation."""
 
 from datetime import UTC, datetime, timedelta
 
-from core.enum.conversation import MessageRole
-from core.model.conversation import Conversation, Message
+from core.enum.session import MessageRole
+from core.model.session import Message, Session
 from utility.decorator import singleton
 
 
 @singleton
-class ConversationMemoryRepository:
-    """In-memory storage for conversation sessions."""
+class SessionMemoryRepository:
+    """In-memory storage for session sessions."""
 
     def __init__(self):
         """Initialize the repository with an empty sessions dictionary."""
-        self._sessions: dict[str, Conversation] = {}
+        self._sessions: dict[str, Session] = {}
 
-    def create_session(self, session_id: str | None = None) -> Conversation:
+    def create_session(self, session_id: str | None = None) -> Session:
         """
-        Create a new conversation session.
+        Create a new session session.
 
         Args:
             session_id: Optional session ID, generates new UUID if not provided
 
         Returns:
-            New Conversation instance
+            New Session instance
         """
-        conversation = Conversation(session_id=session_id) if session_id else Conversation()
-        self._sessions[conversation.session_id] = conversation
-        return conversation
+        session = Session(session_id=session_id) if session_id else Session()
+        self._sessions[session.session_id] = session
+        return session
 
-    def get_session(self, session_id: str) -> Conversation | None:
+    def get_session(self, session_id: str) -> Session | None:
         """
-        Retrieve a conversation session by ID.
+        Retrieve a session session by ID.
 
         Args:
             session_id: Session identifier
 
         Returns:
-            Conversation if found, None otherwise
+            Session if found, None otherwise
         """
         return self._sessions.get(session_id)
 
     def add_message(self, session_id: str, role: MessageRole, content: str) -> None:
         """
-        Add a message to an existing conversation.
+        Add a message to an existing session.
 
         Args:
             session_id: Session identifier
@@ -53,26 +53,26 @@ class ConversationMemoryRepository:
         Raises:
             KeyError: If session_id not found
         """
-        conversation = self._sessions.get(session_id)
-        if conversation is None:
+        session = self._sessions.get(session_id)
+        if session is None:
             raise KeyError(f'Session {session_id} not found')
-        conversation.add_message(role=role, content=content)
+        session.add_message(role=role, content=content)
 
     def get_recent_messages(self, session_id: str, max_turns: int = 5) -> list[Message]:
         """
-        Get recent messages from a conversation.
+        Get recent messages from a session.
 
         Args:
             session_id: Session identifier
-            max_turns: Maximum number of conversation turns to return
+            max_turns: Maximum number of session turns to return
 
         Returns:
             List of recent messages, empty list if session not found
         """
-        conversation = self._sessions.get(session_id)
-        if conversation is None:
+        session = self._sessions.get(session_id)
+        if session is None:
             return []
-        return conversation.get_recent_messages(max_turns=max_turns)
+        return session.get_recent_messages(max_turns=max_turns)
 
     def cleanup_old_sessions(self, hours: int = 1) -> int:
         """
@@ -86,7 +86,7 @@ class ConversationMemoryRepository:
         """
         cutoff_time = datetime.now(UTC) - timedelta(hours=hours)
         sessions_to_remove = [
-            session_id for session_id, conversation in self._sessions.items() if conversation.updated_at < cutoff_time
+            session_id for session_id, session in self._sessions.items() if session.updated_at < cutoff_time
         ]
 
         for session_id in sessions_to_remove:

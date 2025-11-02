@@ -1,13 +1,13 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useAgentStream } from '@/hooks/useAgentStream';
+import { useAskAgent } from '@/hooks/useAskAgent';
 
 export default function NewTopic() {
   const router = useRouter();
   const { q: initialQuery } = router.query;
   const [hasStarted, setHasStarted] = useState(false);
 
-  const { sessionId, content, isLoading, error, startStream } = useAgentStream();
+  const { topicSessionId, content, isLoading, error, startStream } = useAskAgent();
 
   useEffect(() => {
     if (!hasStarted && typeof initialQuery === 'string' && initialQuery.trim()) {
@@ -17,14 +17,21 @@ export default function NewTopic() {
   }, [initialQuery, hasStarted, startStream]);
 
   useEffect(() => {
-    // TODO: should be optimized to:
-    // 1. POST /api/sessions with query, then receive new session ID immediately
-    // 2. navigate to /topic/${sessionId}
-    // 3. start receiving new content streaming by session ID
-    if (sessionId && !isLoading && content) {
-      router.replace(`/topic/${sessionId}`);
+    if (isLoading) {
+      return;
     }
-  }, [sessionId, isLoading, content, router]);
+
+    // TODO: should be optimized to:
+    // 1. POST /sessions with query, then receive new session ID immediately
+    // 2. navigate to /topic/${topicSessionId}
+    // 3. start receiving new content streaming by session ID
+    if (topicSessionId && typeof initialQuery === 'string') {
+      router.replace({
+        pathname: `/topic/${topicSessionId}`,
+        query: { q: initialQuery },
+      });
+    }
+  }, [topicSessionId, initialQuery, router, isLoading]);
 
   return (
     <main className="flex flex-1 flex-col p-4 md:p-6">
@@ -54,7 +61,7 @@ export default function NewTopic() {
 
         {error && (
           <div className="p-4 rounded-lg border border-destructive bg-destructive/10">
-            <p className="text-sm text-destructive">{error}</p>
+            <p className="text-sm text-destructive">{error.message}</p>
           </div>
         )}
       </div>

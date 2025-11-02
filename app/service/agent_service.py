@@ -11,8 +11,8 @@ from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams
 from jinja2 import Template
 
-from config.settings import BRAVE_SEARCH_API_KEY, MAX_CONVERSATION_CONTEXT_TURNS, XAI_API_KEY
-from core.model.conversation import Message
+from config.settings import BRAVE_SEARCH_API_KEY, MAX_SESSION_CONTEXT_TURNS, XAI_API_KEY
+from core.model.session import Message
 
 
 class AgentService:
@@ -41,28 +41,26 @@ class AgentService:
     async def run_agent_stream(
         self,
         task: str,
-        conversation_history: list[Message] | None = None,
-        max_context_turns: int = MAX_CONVERSATION_CONTEXT_TURNS,
+        session_history: list[Message] | None = None,
+        max_context_turns: int = MAX_SESSION_CONTEXT_TURNS,
     ) -> AsyncIterator[str]:
         """
         Run the multi-agent system with streaming response.
 
         Args:
             task: The user's question or task
-            conversation_history: Optional conversation history for context
-            max_context_turns: Maximum number of conversation turns to include in context (default from settings)
+            session_history: Optional session history for context
+            max_context_turns: Maximum number of session turns to include in context (default from settings)
 
         Yields:
             Streaming text chunks from the agents
         """
         primary_prompt, search_prompt, generation_prompt = self._render_system_prompts()
 
-        if conversation_history:
+        if session_history:
             max_messages = max_context_turns * 2
             limited_history: list[Message] = (
-                conversation_history[-max_messages:]
-                if len(conversation_history) > max_messages
-                else conversation_history
+                session_history[-max_messages:] if len(session_history) > max_messages else session_history
             )
         else:
             limited_history = []
@@ -123,7 +121,7 @@ class AgentService:
                 history_context = '\n\n'.join(
                     [f'{"User" if msg.role == "user" else "Assistant"}: {msg.content}' for msg in limited_history]
                 )
-                full_task = f'Previous conversation:\n{history_context}\n\nCurrent question: {task}'
+                full_task = f'Previous session:\n{history_context}\n\nCurrent question: {task}'
             else:
                 full_task = task
 

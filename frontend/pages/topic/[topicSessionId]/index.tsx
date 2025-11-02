@@ -2,29 +2,27 @@ import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import PageTopic from '@/modules/PageTopic';
 
 interface TopicProps {
-  sessionId: string;
+  topicSessionId: string;
 }
 
-export default function Topic({ sessionId }: TopicProps) {
-  return <PageTopic sessionId={sessionId} />;
+export default function Topic({ topicSessionId }: TopicProps) {
+  return <PageTopic topicSessionId={topicSessionId} />;
 }
 
 export async function getServerSideProps({
   params,
 }: GetServerSidePropsContext): Promise<GetServerSidePropsResult<TopicProps>> {
-  if (!params?.sessionId) {
+  const topicSessionId = Array.isArray(params?.topicSessionId) ? params?.topicSessionId[0] : params?.topicSessionId;
+
+  if (!topicSessionId) {
     return {
       notFound: true,
     };
   }
 
-  const sessionId = Array.isArray(params?.sessionId)
-    ? params?.sessionId[0]
-    : params?.sessionId;
-
   return {
     props: {
-      sessionId,
+      topicSessionId,
     },
   };
 }

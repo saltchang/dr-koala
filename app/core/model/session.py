@@ -1,32 +1,32 @@
-"""Conversation and message data models."""
+"""Session and message data models."""
 
 from datetime import UTC, datetime
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
-from core.enum.conversation import MessageRole
+from core.enum.session import MessageRole
 
 
 class Message(BaseModel):
-    """Single message in a conversation."""
+    """Single message in a session."""
 
     role: MessageRole
     content: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
-class ConversationTurn(BaseModel):
-    """Structured conversation turn for card-based layout."""
+class SessionTurn(BaseModel):
+    """Structured session turn for card-based layout."""
 
     query: str
     response: str
-    timestamp: datetime
+    timestamp: str
     sources: list[str] = Field(default_factory=list)
 
 
-class Conversation(BaseModel):
-    """Conversation session with message history."""
+class Session(BaseModel):
+    """Session session with message history."""
 
     session_id: str = Field(default_factory=lambda: str(uuid4()))
     messages: list[Message] = Field(default_factory=list)
@@ -34,7 +34,7 @@ class Conversation(BaseModel):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     def add_message(self, role: MessageRole, content: str) -> None:
-        """Add a message to the conversation."""
+        """Add a message to the session."""
         self.messages.append(Message(role=role, content=content))
         self.updated_at = datetime.now(UTC)
 
@@ -43,7 +43,7 @@ class Conversation(BaseModel):
         Get recent messages limited by number of turns.
 
         Args:
-            max_turns: Maximum number of conversation turns (user+assistant pairs) to return
+            max_turns: Maximum number of session turns (user+assistant pairs) to return
 
         Returns:
             List of recent messages, limited to max_turns * 2 messages
@@ -51,14 +51,14 @@ class Conversation(BaseModel):
         max_messages = max_turns * 2
         return self.messages[-max_messages:] if len(self.messages) > max_messages else self.messages
 
-    def get_turns(self) -> list[ConversationTurn]:
+    def get_turns(self) -> list[SessionTurn]:
         """
         Convert messages to structured turns for card-based UI.
 
         Returns:
-            List of conversation turns with query-response pairs
+            List of session turns with query-response pairs
         """
-        turns: list[ConversationTurn] = []
+        turns: list[SessionTurn] = []
         current_query: str | None = None
         current_timestamp: datetime | None = None
 
@@ -68,10 +68,10 @@ class Conversation(BaseModel):
                 current_timestamp = message.timestamp
             elif message.role == MessageRole.ASSISTANT and current_query is not None:
                 turns.append(
-                    ConversationTurn(
+                    SessionTurn(
                         query=current_query,
                         response=message.content,
-                        timestamp=current_timestamp or message.timestamp,
+                        timestamp=(current_timestamp or message.timestamp).isoformat(),
                         sources=[],
                     )
                 )

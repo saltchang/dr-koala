@@ -1,40 +1,40 @@
-"""Protocol for conversation repository."""
+"""Protocol for session repository."""
 
 from typing import Protocol
 
-from core.model.conversation import Conversation, Message
+from core.model.session import Message, Session
 
 
-class ConversationRepositoryProtocol(Protocol):
-    """Protocol for conversation storage and retrieval."""
+class SessionRepositoryProtocol(Protocol):
+    """Protocol for session storage and retrieval."""
 
-    def create_session(self, session_id: str | None = None) -> Conversation:
+    def create_session(self, session_id: str | None = None) -> Session:
         """
-        Create a new conversation session.
+        Create a new session session.
 
         Args:
             session_id: Optional session ID, generates new UUID if not provided
 
         Returns:
-            New Conversation instance
+            New Session instance
         """
         ...
 
-    def get_session(self, session_id: str) -> Conversation | None:
+    def get_session(self, session_id: str) -> Session | None:
         """
-        Retrieve a conversation session by ID.
+        Retrieve a session session by ID.
 
         Args:
             session_id: Session identifier
 
         Returns:
-            Conversation if found, None otherwise
+            Session if found, None otherwise
         """
         ...
 
     def add_message(self, session_id: str, role: str, content: str) -> None:
         """
-        Add a message to an existing conversation.
+        Add a message to an existing session.
 
         Args:
             session_id: Session identifier
@@ -45,11 +45,11 @@ class ConversationRepositoryProtocol(Protocol):
 
     def get_recent_messages(self, session_id: str, max_turns: int = 5) -> list[Message]:
         """
-        Get recent messages from a conversation.
+        Get recent messages from a session.
 
         Args:
             session_id: Session identifier
-            max_turns: Maximum number of conversation turns to return
+            max_turns: Maximum number of session turns to return
 
         Returns:
             List of recent messages

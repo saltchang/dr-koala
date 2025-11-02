@@ -78,3 +78,8 @@ reset-db:
 run-autogen-example:
 	@echo "Running AutoGen example with Brave Search..."
 	$(APP_PYTHON_PATH) uv run python app/autogen_example.py
+
+# Parse API schema as TypeScript types for frontend
+parse-api-schema:
+	@echo "Parsing API schema as TypeScript types for frontend..."
+	cd frontend && pnpm exec openapi-typescript http://localhost:7086/openapi.json -o ./types/apiSchema.d.ts && pnpm exec biome format --write ./types/apiSchema.d.ts && cd ..
