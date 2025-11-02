@@ -125,18 +125,9 @@ class AgentService:
     async def process_query_stream(
         self,
         query: str,
-        session_id: str | None = None,
-    ) -> AsyncIterator[tuple[Literal['session_id', 'content', 'done', 'error'], dict]]:
+        session_id: str,
+    ) -> AsyncIterator[tuple[Literal['content', 'done', 'error'], dict]]:
         try:
-            session = self.session_service.get_session(session_id) if session_id else None
-
-            if not session:
-                session = self.session_service.create_session()
-
-            session_id = session.session_id
-
-            yield ('session_id', {'session_id': session_id})
-
             self.session_service.add_user_message(session_id, query)
 
             session_history = self.session_service.get_recent_messages(session_id, MAX_SESSION_CONTEXT_TURNS)

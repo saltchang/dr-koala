@@ -3,21 +3,29 @@ import { memo, useState } from 'react';
 import svgDrKoalaLogo from '@/assets/dr-koala.svg';
 import ChatInput from '@/components/ChatInput';
 import SVG from '@/components/SVG';
+import { useCreateSession } from '@/hooks/useCreateSession';
 
 function PageHome() {
   const router = useRouter();
   const [query, setQuery] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
+  const { mutateAsync: createSession, isPending: isCreatingSession } = useCreateSession();
 
-  const handleSubmit = () => {
-    if (!query.trim()) {
+  const handleSubmit = async () => {
+    if (!query.trim() || isCreatingSession) {
       return;
     }
 
-    router.push({
-      pathname: '/topic/new',
-      query: { q: query },
-    });
+    try {
+      const { id: sessionId } = await createSession();
+
+      router.push({
+        pathname: `/topic/${sessionId}`,
+        query: { q: query },
+      });
+    } catch (error) {
+      console.error('Failed to create session:', error);
+    }
   };
 
   return (
@@ -38,6 +46,7 @@ function PageHome() {
               onKeyDown={(e) => e.key === 'Enter' && !isComposing && handleSubmit()}
               onSend={handleSubmit}
               placeholder="Ask Dr. Koala anything..."
+              disabled={isCreatingSession}
             />
           </div>
         </div>

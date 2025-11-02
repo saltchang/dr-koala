@@ -67,11 +67,25 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Ask Agent
-     * @description Ask the agent a question.
-     */
+    /** Ask Agent */
     post: operations['ask_agent_ask_agent_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sessions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create Session */
+    post: operations['create_session_sessions_post'];
     delete?: never;
     options?: never;
     head?: never;
@@ -85,10 +99,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Get Session By Id
-     * @description Get a session by its ID.
-     */
+    /** Get Session By Id */
     get: operations['get_session_by_id_sessions__session_id__get'];
     put?: never;
     post?: never;
@@ -102,23 +113,12 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /**
-     * AgentQueryRequest
-     * @description Request model for agent query.
-     */
-    AgentQueryRequest: {
+    /** AskAgentRequest */
+    AskAgentRequest: {
       /** Query */
       query: string;
       /** Session Id */
-      session_id?: string | null;
-    };
-    /**
-     * AskAgentResponseStreamChunkDataModel
-     * @description Data payload in agent stream chunks.
-     */
-    AskAgentResponseStreamChunkDataModel: {
-      /** Session Id */
-      session_id?: string | null;
+      session_id: string;
     };
     /**
      * AskAgentResponseStreamChunkModel
@@ -127,7 +127,6 @@ export interface components {
     AskAgentResponseStreamChunkModel: {
       /** Content */
       content?: string | null;
-      data?: components['schemas']['AskAgentResponseStreamChunkDataModel'] | null;
       /** Done */
       done?: boolean | null;
       /** Error */
@@ -387,7 +386,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['AgentQueryRequest'];
+        'application/json': components['schemas']['AskAgentRequest'];
       };
     };
     responses: {
@@ -407,6 +406,26 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  create_session_sessions_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SessionHistoryResponseModel'];
         };
       };
     };

@@ -5,27 +5,25 @@ import { streamFunction } from '@/utils/fetch';
 import { useTopicSession } from './useTopicSession';
 
 interface UseAskAgentResult {
-  topicSessionId: string | null;
   content: string;
   isLoading: boolean;
   error: Error | null;
-  startStream: (query: string, existingSessionId?: string | null) => void;
+  startStream: (query: string, sessionId: string) => void;
   reset: () => void;
 }
 
 interface StreamVariables {
   query: string;
-  topicSessionId?: string | null;
+  sessionId: string;
 }
 
 export const useAskAgent = (): UseAskAgentResult => {
-  const [topicSessionId, setTopicSessionId] = useState<string | null>(null);
   const [content, setContent] = useState<string>('');
   const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
 
   const mutation = useMutation<void, Error, StreamVariables>({
-    mutationFn: async ({ query, topicSessionId: existingSessionId }) => {
+    mutationFn: async ({ query, sessionId }) => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -33,20 +31,13 @@ export const useAskAgent = (): UseAskAgentResult => {
       abortControllerRef.current = new AbortController();
       setContent('');
 
-      return streamFunction<
-        components['schemas']['AgentQueryRequest'],
-        components['schemas']['AskAgentResponseStreamChunkDataModel']
-      >({
+      return streamFunction<components['schemas']['AskAgentRequest'], never>({
         path: '/ask-agent',
         request: {
           query,
-          session_id: existingSessionId,
+          session_id: sessionId,
         },
         onChunk: (chunk) => {
-          if (chunk.data?.session_id) {
-            setTopicSessionId(chunk.data.session_id);
-          }
-
           if (chunk.content) {
             setContent((prev) => prev + chunk.content);
           }
@@ -55,11 +46,9 @@ export const useAskAgent = (): UseAskAgentResult => {
           throw error;
         },
         onComplete: () => {
-          if (existingSessionId) {
-            queryClient.invalidateQueries({
-              queryKey: useTopicSession.getQueryKey(existingSessionId),
-            });
-          }
+          queryClient.invalidateQueries({
+            queryKey: useTopicSession.getQueryKey(sessionId),
+          });
         },
         signal: abortControllerRef.current.signal,
       });
@@ -67,18 +56,21 @@ export const useAskAgent = (): UseAskAgentResult => {
   });
 
   const startStream = useCallback(
-    (query: string, existingSessionId?: string | null) => {
+    (query: string, sessionId: string) => {
       if (!query.trim()) {
         throw new Error('Please enter a question');
       }
 
-      mutation.mutate({ query, topicSessionId: existingSessionId });
+      if (!sessionId) {
+        throw new Error('Session ID is required');
+      }
+
+      mutation.mutate({ query, sessionId });
     },
     [mutation],
   );
 
   const reset = useCallback(() => {
-    setTopicSessionId(null);
     setContent('');
     mutation.reset();
   }, [mutation]);
@@ -93,14 +85,13 @@ export const useAskAgent = (): UseAskAgentResult => {
 
   const data = useMemo(
     () => ({
-      topicSessionId,
       content,
       isLoading: mutation.isPending,
       error: mutation.error,
       startStream,
       reset,
     }),
-    [topicSessionId, content, mutation.isPending, mutation.error, startStream, reset],
+    [content, mutation.isPending, mutation.error, startStream, reset],
   );
 
   return data;

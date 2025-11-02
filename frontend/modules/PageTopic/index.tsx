@@ -28,34 +28,16 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   } = useTopicSession(topicSessionId, !isResponseStreaming);
 
   useEffect(() => {
-    if (isResponseStreaming) {
+    if (hasStartedInitialQuery || typeof initialQuery !== 'string' || initialQuery.trim() || isResponseStreaming) {
       return;
     }
 
-    if (
-      !hasStartedInitialQuery &&
-      !isLoadingHistory &&
-      topicSession &&
-      topicSession.turns.length === 0 &&
-      typeof initialQuery === 'string' &&
-      initialQuery.trim()
-    ) {
-      setCurrentQuestion(initialQuery);
-      startStream(initialQuery, topicSessionId);
-      setHasStartedInitialQuery(true);
+    setCurrentQuestion(initialQuery);
+    startStream(initialQuery, topicSessionId);
 
-      router.replace(`/topic/${topicSessionId}`, undefined, { shallow: true });
-    }
-  }, [
-    initialQuery,
-    topicSessionId,
-    topicSession,
-    isLoadingHistory,
-    hasStartedInitialQuery,
-    startStream,
-    router,
-    isResponseStreaming,
-  ]);
+    router.replace(`/topic/${topicSessionId}`, undefined, { shallow: true });
+    setHasStartedInitialQuery(true);
+  }, [initialQuery, topicSessionId, hasStartedInitialQuery, startStream, router, isResponseStreaming]);
 
   useEffect(() => {
     if (!isResponseStreaming && currentQuestion && content) {
