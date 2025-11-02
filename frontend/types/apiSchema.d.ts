@@ -82,7 +82,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Get All Sessions */
+    get: operations['get_all_sessions_sessions_get'];
     put?: never;
     /** Create Session */
     post: operations['create_session_sessions_post'];
@@ -132,6 +133,11 @@ export interface components {
       /** Error */
       error?: string | null;
     };
+    /** CreateSessionRequestModel */
+    CreateSessionRequestModel: {
+      /** Title */
+      title: string;
+    };
     /** CreateUserRequestModel */
     CreateUserRequestModel: {
       /** Username */
@@ -146,6 +152,15 @@ export interface components {
       /** Detail */
       detail?: components['schemas']['ValidationError'][];
     };
+    /** RetrieveSessionResponseModel */
+    RetrieveSessionResponseModel: {
+      /** Id */
+      id: string;
+      /** Title */
+      title: string;
+      /** Turns */
+      turns: components['schemas']['SessionTurn'][];
+    };
     /** RetrieveUserModel */
     RetrieveUserModel: {
       /** Id */
@@ -156,13 +171,6 @@ export interface components {
       email: string;
       /** Is Verified */
       is_verified: boolean;
-    };
-    /** SessionHistoryResponseModel */
-    SessionHistoryResponseModel: {
-      /** Id */
-      id: string;
-      /** Turns */
-      turns: components['schemas']['SessionTurn'][];
     };
     /**
      * SessionTurn
@@ -410,7 +418,7 @@ export interface operations {
       };
     };
   };
-  create_session_sessions_post: {
+  get_all_sessions_sessions_get: {
     parameters: {
       query?: never;
       header?: never;
@@ -425,7 +433,40 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SessionHistoryResponseModel'];
+          'application/json': components['schemas']['RetrieveSessionResponseModel'][];
+        };
+      };
+    };
+  };
+  create_session_sessions_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateSessionRequestModel'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RetrieveSessionResponseModel'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -447,7 +488,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SessionHistoryResponseModel'];
+          'application/json': components['schemas']['RetrieveSessionResponseModel'];
         };
       };
       /** @description Validation Error */

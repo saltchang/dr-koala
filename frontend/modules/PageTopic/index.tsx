@@ -19,7 +19,7 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   const [currentQuestion, setCurrentQuestion] = useState<string>('');
   const [hasStartedInitialQuery, setHasStartedInitialQuery] = useState(false);
 
-  const { content, isLoading: isResponseStreaming, error, startStream, reset } = useAskAgent();
+  const { content, isLoading: isResponseStreaming, error, submitQuestion, reset } = useAskAgent();
 
   const {
     data: topicSession,
@@ -28,16 +28,16 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   } = useTopicSession(topicSessionId, !isResponseStreaming);
 
   useEffect(() => {
-    if (hasStartedInitialQuery || typeof initialQuery !== 'string' || initialQuery.trim() || isResponseStreaming) {
+    if (hasStartedInitialQuery || typeof initialQuery !== 'string' || !initialQuery.trim() || isResponseStreaming) {
       return;
     }
 
     setCurrentQuestion(initialQuery);
-    startStream(initialQuery, topicSessionId);
+    submitQuestion(initialQuery, topicSessionId);
 
     router.replace(`/topic/${topicSessionId}`, undefined, { shallow: true });
     setHasStartedInitialQuery(true);
-  }, [initialQuery, topicSessionId, hasStartedInitialQuery, startStream, router, isResponseStreaming]);
+  }, [initialQuery, topicSessionId, hasStartedInitialQuery, submitQuestion, router, isResponseStreaming]);
 
   useEffect(() => {
     if (!isResponseStreaming && currentQuestion && content) {
@@ -60,8 +60,8 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
     setQuery('');
     reset();
 
-    startStream(currentQuery, topicSessionId);
-  }, [query, topicSessionId, isResponseStreaming, startStream, reset]);
+    submitQuestion(currentQuery, topicSessionId);
+  }, [query, topicSessionId, isResponseStreaming, submitQuestion, reset]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

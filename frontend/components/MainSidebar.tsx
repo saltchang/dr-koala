@@ -15,14 +15,11 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from '@/components/ui/sidebar';
-import type { TopicSession } from '@/types/topicSession';
+import { useTopicSessions } from '@/hooks/useTopicSessions';
 
-interface MainSidebarProps {
-  topicSessions: TopicSession[];
-}
-
-function MainSidebar({ topicSessions }: MainSidebarProps) {
+function MainSidebar() {
   const router = useRouter();
+  const { data: topicSessions, isLoading } = useTopicSessions();
 
   const handleNewTopicSession = () => {
     router.push('/');
@@ -48,8 +45,10 @@ function MainSidebar({ topicSessions }: MainSidebarProps) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {topicSessions.length === 0 ? (
-                <div className="px-2 py-4 text-sm text-muted-foreground text-center">No topicSessions yet</div>
+              {isLoading ? (
+                <div className="px-2 py-4 text-sm text-muted-foreground text-center">Loading...</div>
+              ) : topicSessions.length === 0 ? (
+                <div className="px-2 py-4 text-sm text-muted-foreground text-center">No sessions yet</div>
               ) : (
                 topicSessions.map((topicSession) => (
                   <SidebarMenuItem key={topicSession.id}>

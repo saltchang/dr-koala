@@ -17,7 +17,12 @@ function PageHome() {
     }
 
     try {
-      const { id: sessionId } = await createSession();
+      const title = query.trim();
+      if (!title) {
+        return;
+      }
+
+      const { id: sessionId } = await createSession({ title });
 
       router.push({
         pathname: `/topic/${sessionId}`,

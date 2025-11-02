@@ -11,8 +11,8 @@ class SessionService:
     def __init__(self, session_repo: SessionMemoryRepository):
         self.session_repo = session_repo
 
-    def create_session(self) -> Session:
-        return self.session_repo.create_session()
+    def create_session(self, title: str) -> Session:
+        return self.session_repo.create_session(title=title)
 
     def add_user_message(self, session_id: str, content: str) -> None:
         self.session_repo.add_message(session_id, MessageRole.USER, content)
@@ -25,3 +25,6 @@ class SessionService:
 
     def get_session(self, session_id: str) -> Session | None:
         return self.session_repo.get_session(session_id)
+
+    def get_all_sessions(self) -> list[Session]:
+        return self.session_repo.get_all_sessions()

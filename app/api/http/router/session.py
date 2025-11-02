@@ -2,24 +2,34 @@ from fastapi import APIRouter
 
 from api.http.dependencies.session import SessionServiceDependency
 from api.http.schema.session import (
-    SessionHistoryResponseModel,
+    CreateSessionRequestModel,
+    RetrieveSessionResponseModel,
 )
 from core.error import NotFoundError
 
 router = APIRouter(prefix='/sessions', tags=['Sessions'])
 
 
-@router.post('', response_model=SessionHistoryResponseModel)
-async def create_session(session_service: SessionServiceDependency):
-    session = session_service.create_session()
-    return SessionHistoryResponseModel(id=session.session_id, turns=[])
+@router.post('', response_model=RetrieveSessionResponseModel)
+async def create_session(request: CreateSessionRequestModel, session_service: SessionServiceDependency):
+    session = session_service.create_session(title=request.title)
+    return RetrieveSessionResponseModel(id=session.session_id, title=session.title, turns=[])
 
 
-@router.get('/{session_id}', response_model=SessionHistoryResponseModel)
+@router.get('', response_model=list[RetrieveSessionResponseModel])
+async def get_all_sessions(session_service: SessionServiceDependency):
+    sessions = session_service.get_all_sessions()
+    return [
+        RetrieveSessionResponseModel(id=session.session_id, title=session.title, turns=session.get_turns())
+        for session in sessions
+    ]
+
+
+@router.get('/{session_id}', response_model=RetrieveSessionResponseModel)
 async def get_session_by_id(session_id: str, session_service: SessionServiceDependency):
     session = session_service.get_session(session_id)
 
     if not session:
         raise NotFoundError('Session not found')
 
-    return SessionHistoryResponseModel(id=session.session_id, turns=session.get_turns())
+    return RetrieveSessionResponseModel(id=session.session_id, title=session.title, turns=session.get_turns())

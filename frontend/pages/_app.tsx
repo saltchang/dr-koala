@@ -3,7 +3,6 @@ import type { AppProps } from 'next/app';
 import { useState } from 'react';
 import AppContainer from '@/components/AppContainer';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
-import type { TopicSession } from '@/types/topicSession';
 
 import '@/styles/globals.css';
 
@@ -33,13 +32,11 @@ export default function App({ Component, pageProps }: AppProps) {
       }),
   );
 
-  const [topicSessions, setTopicSessions] = useState<TopicSession[]>([]);
-
   return (
     <ThemeProvider themes={['dark'] as const} attribute="class" defaultTheme="dark" disableTransitionOnChange>
       <QueryClientProvider client={queryClient}>
-        <AppContainer topicSessions={topicSessions}>
-          <Component {...pageProps} topicSessions={topicSessions} setTopicSessions={setTopicSessions} />
+        <AppContainer>
+          <Component {...pageProps} />
         </AppContainer>
       </QueryClientProvider>
     </ThemeProvider>

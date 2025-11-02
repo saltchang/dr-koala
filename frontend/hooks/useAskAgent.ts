@@ -3,12 +3,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { components } from '@/types/apiSchema';
 import { streamFunction } from '@/utils/fetch';
 import { useTopicSession } from './useTopicSession';
+import { useTopicSessions } from './useTopicSessions';
 
 interface UseAskAgentResult {
   content: string;
   isLoading: boolean;
   error: Error | null;
-  startStream: (query: string, sessionId: string) => void;
+  submitQuestion: (query: string, sessionId: string) => Promise<void>;
   reset: () => void;
 }
 
@@ -22,7 +23,12 @@ export const useAskAgent = (): UseAskAgentResult => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
 
-  const mutation = useMutation<void, Error, StreamVariables>({
+  const {
+    mutateAsync: askAgent,
+    reset: resetAskAgent,
+    isPending: isAskingAgent,
+    error: askAgentError,
+  } = useMutation<void, Error, StreamVariables>({
     mutationFn: async ({ query, sessionId }) => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -49,14 +55,17 @@ export const useAskAgent = (): UseAskAgentResult => {
           queryClient.invalidateQueries({
             queryKey: useTopicSession.getQueryKey(sessionId),
           });
+          queryClient.invalidateQueries({
+            queryKey: useTopicSessions.getQueryKey(),
+          });
         },
         signal: abortControllerRef.current.signal,
       });
     },
   });
 
-  const startStream = useCallback(
-    (query: string, sessionId: string) => {
+  const submitQuestion = useCallback(
+    async (query: string, sessionId: string) => {
       if (!query.trim()) {
         throw new Error('Please enter a question');
       }
@@ -65,15 +74,15 @@ export const useAskAgent = (): UseAskAgentResult => {
         throw new Error('Session ID is required');
       }
 
-      mutation.mutate({ query, sessionId });
+      await askAgent({ query, sessionId });
     },
-    [mutation],
+    [askAgent],
   );
 
   const reset = useCallback(() => {
     setContent('');
-    mutation.reset();
-  }, [mutation]);
+    resetAskAgent();
+  }, [resetAskAgent]);
 
   useEffect(() => {
     return () => {
@@ -86,12 +95,12 @@ export const useAskAgent = (): UseAskAgentResult => {
   const data = useMemo(
     () => ({
       content,
-      isLoading: mutation.isPending,
-      error: mutation.error,
-      startStream,
+      isLoading: isAskingAgent,
+      error: askAgentError,
+      submitQuestion,
       reset,
     }),
-    [content, mutation.isPending, mutation.error, startStream, reset],
+    [content, isAskingAgent, askAgentError, submitQuestion, reset],
   );
 
   return data;

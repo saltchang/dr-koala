@@ -9,7 +9,7 @@ export const useTopicSession = (topicSessionId: string, enabled: boolean) => {
     data: rawData,
     isLoading,
     error,
-  } = useQuery<components['schemas']['SessionHistoryResponseModel']>({
+  } = useQuery<components['schemas']['RetrieveSessionResponseModel']>({
     queryKey: useTopicSession.getQueryKey(topicSessionId),
     queryFn: () => queryFunction({ path: `/sessions/${topicSessionId}` }),
     enabled,
