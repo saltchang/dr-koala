@@ -20,6 +20,8 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [hasStartedInitialQuery, setHasStartedInitialQuery] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const lastTurnRef = useRef<HTMLDivElement>(null);
+  const previousTurnsLengthRef = useRef<number>(0);
 
   const {
     turns,
@@ -47,6 +49,18 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
       inputRef.current?.focus();
     }
   }, [isStreaming, isLoadingHistory, hasStartedInitialQuery]);
+
+  useEffect(() => {
+    if (turns.length > previousTurnsLengthRef.current && turns.length > 1 && lastTurnRef.current) {
+      requestAnimationFrame(() => {
+        lastTurnRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      });
+    }
+    previousTurnsLengthRef.current = turns.length;
+  }, [turns.length]);
 
   const handleFollowUpQuery = useCallback(() => {
     if (!query.trim() || isStreaming) {
@@ -100,8 +114,8 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   }
 
   return (
-    <main className="flex flex-1 flex-col p-4 md:p-6">
-      <div className="w-full max-w-[800px] mx-auto flex flex-col gap-8">
+    <main className="flex flex-1 flex-col p-4 pt-6 md:pt-10 pb-8 min-h-[calc(100vh-4rem)]">
+      <div className="w-full max-w-[800px] mx-auto flex flex-col gap-8 flex-1">
         {turns.length > 0 && (
           <div className="flex flex-col gap-6">
             {turns.map((turn, index) => {
@@ -109,11 +123,15 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
               const isStreamingTurn = isLastTurn && isStreaming;
 
               return (
-                <div key={turn.query ? `${turn.query}-${index}` : `streaming-${index}`} className="flex flex-col gap-3">
+                <div
+                  key={turn.query ? `${turn.query}-${index}` : `streaming-${index}`}
+                  className={`flex flex-col gap-3 scroll-mt-16 ${isLastTurn ? 'min-h-[calc(100vh-4rem-8rem-3rem)]' : ''}`}
+                  ref={isLastTurn ? lastTurnRef : null}
+                >
                   <h2 className="text-3xl font-semibold text-foreground leading-loose">{turn.query}</h2>
 
                   <Card className="shadow-md">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 md:p-6">
                       {turn.steps && turn.steps.length > 0 && (
                         <AgentSteps
                           steps={turn.steps}
@@ -149,19 +167,21 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
           </Card>
         )}
 
-        <Card className="sticky bottom-4 shadow-lg">
-          <ChatInput
-            ref={inputRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onCompositionStart={() => setIsComposing(true)}
-            onCompositionEnd={() => setIsComposing(false)}
-            onKeyDown={handleKeyDown}
-            onSend={handleFollowUpQuery}
-            placeholder="Ask Dr. Koala more questions..."
-            disabled={isStreaming}
-          />
-        </Card>
+        <div className="sticky bottom-4 z-10 mt-auto">
+          <Card className="shadow-lg">
+            <ChatInput
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onCompositionStart={() => setIsComposing(true)}
+              onCompositionEnd={() => setIsComposing(false)}
+              onKeyDown={handleKeyDown}
+              onSend={handleFollowUpQuery}
+              placeholder="Ask Dr. Koala more questions..."
+              disabled={isStreaming}
+            />
+          </Card>
+        </div>
       </div>
     </main>
   );

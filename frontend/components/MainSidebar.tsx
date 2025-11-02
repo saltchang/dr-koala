@@ -90,5 +90,5 @@ function MainSidebar() {
 export default memo(MainSidebar);
 
 export function MainSidebarProvider({ children }: { children: ReactNode }) {
-  return <SidebarProvider defaultOpen={true}>{children}</SidebarProvider>;
+  return <SidebarProvider defaultOpen={false}>{children}</SidebarProvider>;
 }

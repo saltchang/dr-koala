@@ -11,10 +11,10 @@ export default function AppContainer({ children }: AppContainerProps) {
     <MainSidebarProvider>
       <MainSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger />
         </header>
-        <div className="relative min-h-screen w-full flex-1">{children}</div>
+        <div className="relative h-[calc(100vh-4rem)] w-full flex-1">{children}</div>
       </SidebarInset>
     </MainSidebarProvider>
   );
