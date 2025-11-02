@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { memo, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import svgDrKoalaLogo from '@/assets/dr-koala.svg';
 import ChatInput from '@/components/ChatInput';
 import SVG from '@/components/SVG';
@@ -10,6 +10,11 @@ function PageHome() {
   const [query, setQuery] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const { mutateAsync: createSession, isPending: isCreatingSession } = useCreateSession();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleSubmit = async () => {
     if (!query.trim() || isCreatingSession) {
@@ -42,6 +47,7 @@ function PageHome() {
 
       <div className="w-full max-w-[640px]">
         <ChatInput
+          ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onCompositionStart={() => setIsComposing(true)}

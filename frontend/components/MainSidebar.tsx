@@ -1,4 +1,4 @@
-import { MessageCirclePlusIcon, MessageSquareIcon } from 'lucide-react';
+import { MessageCirclePlusIcon, MessageSquareTextIcon } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { memo, type ReactNode } from 'react';
 import svgDrKoalaLogo from '@/assets/dr-koala.svg';
@@ -14,18 +14,27 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { useTopicSessions } from '@/hooks/useTopicSessions';
 
 function MainSidebar() {
   const router = useRouter();
   const { data: topicSessions, isLoading } = useTopicSessions();
+  const { isMobile, setOpenMobile, setOpen } = useSidebar();
 
   const handleNewTopicSession = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+    setOpen(false);
     router.push('/');
   };
 
   const handleTopicSessionClick = (topicSessionId: string) => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
     router.push(`/topic/${topicSessionId}`);
   };
 
@@ -55,16 +64,16 @@ function MainSidebar() {
                     <SidebarMenuButton asChild>
                       <button
                         type="button"
-                        className="flex flex-col items-start gap-1 w-full"
+                        className="flex flex-col items-start w-full cursor-pointer h-fit py-2 px-3"
                         onClick={() => handleTopicSessionClick(topicSession.id)}
                       >
                         <div className="flex items-center gap-2 w-full">
-                          <MessageSquareIcon className="h-4 w-4" />
-                          <span className="truncate flex-1 text-left">{topicSession.query}</span>
+                          <MessageSquareTextIcon className="h-4 w-4" />
+                          <div className="truncate flex-1 text-left">{topicSession.query}</div>
                         </div>
-                        <span className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           {new Date(topicSession.timestamp).toLocaleTimeString()}
-                        </span>
+                        </div>
                       </button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

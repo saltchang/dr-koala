@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { useRouter } from 'next/router';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import AgentSteps from '@/components/AgentSteps';
 import ChatInput from '@/components/ChatInput';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +18,7 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   const [query, setQuery] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [hasStartedInitialQuery, setHasStartedInitialQuery] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const {
     turns,
@@ -39,6 +40,12 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
     router.replace(`/topic/${topicSessionId}`, undefined, { shallow: true });
     setHasStartedInitialQuery(true);
   }, [initialQuery, topicSessionId, hasStartedInitialQuery, submitQuestion, router, isStreaming]);
+
+  useEffect(() => {
+    if (!isStreaming && !isLoadingHistory && hasStartedInitialQuery) {
+      inputRef.current?.focus();
+    }
+  }, [isStreaming, isLoadingHistory, hasStartedInitialQuery]);
 
   const handleFollowUpQuery = useCallback(() => {
     if (!query.trim() || isStreaming) {
@@ -143,6 +150,7 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
 
         <Card className="sticky bottom-4 shadow-lg">
           <ChatInput
+            ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onCompositionStart={() => setIsComposing(true)}
