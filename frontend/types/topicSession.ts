@@ -21,10 +21,9 @@ export interface TopicSession {
   timestamp: string;
 }
 
-interface TopicSessionHistoryTurn {
+export interface TopicSessionHistoryTurn {
   query: string;
   response: string;
-  timestamp: string;
   sources?: string[];
   steps?: ProcessingStep[];
 }

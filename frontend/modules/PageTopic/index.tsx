@@ -4,8 +4,7 @@ import { memo, useCallback, useEffect, useState } from 'react';
 import AgentSteps from '@/components/AgentSteps';
 import ChatInput from '@/components/ChatInput';
 import { Card, CardContent } from '@/components/ui/card';
-import { useAskAgent } from '@/hooks/useAskAgent';
-import { useTopicSession } from '@/hooks/useTopicSession';
+import { useTopicSessionWithStreaming } from '@/hooks/useTopicSessionWithStreaming';
 import { ApiResponseError } from '@/types/api';
 
 interface PageTopicProps {
@@ -18,87 +17,76 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
 
   const [query, setQuery] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
-  const [currentQuestion, setCurrentQuestion] = useState<string>('');
   const [hasStartedInitialQuery, setHasStartedInitialQuery] = useState(false);
 
-  const { content, steps, currentStep, isLoading: isResponseStreaming, error, submitQuestion, reset } = useAskAgent();
-
   const {
-    data: topicSession,
+    turns,
     isLoading: isLoadingHistory,
-    error: historyError,
-  } = useTopicSession(topicSessionId, !isResponseStreaming);
+    isStreaming,
+    error,
+    submitQuestion,
+    reset,
+    streamingCurrentStep,
+  } = useTopicSessionWithStreaming(topicSessionId);
 
   useEffect(() => {
-    if (hasStartedInitialQuery || typeof initialQuery !== 'string' || !initialQuery.trim() || isResponseStreaming) {
+    if (hasStartedInitialQuery || typeof initialQuery !== 'string' || !initialQuery.trim() || isStreaming) {
       return;
     }
 
-    setCurrentQuestion(initialQuery);
     submitQuestion(initialQuery, topicSessionId);
 
     router.replace(`/topic/${topicSessionId}`, undefined, { shallow: true });
     setHasStartedInitialQuery(true);
-  }, [initialQuery, topicSessionId, hasStartedInitialQuery, submitQuestion, router, isResponseStreaming]);
-
-  useEffect(() => {
-    if (!isResponseStreaming && currentQuestion && content) {
-      const timer = setTimeout(() => {
-        setCurrentQuestion('');
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isResponseStreaming, currentQuestion, content]);
+  }, [initialQuery, topicSessionId, hasStartedInitialQuery, submitQuestion, router, isStreaming]);
 
   const handleFollowUpQuery = useCallback(() => {
-    if (!query.trim() || isResponseStreaming) {
+    if (!query.trim() || isStreaming) {
       return;
     }
 
     const currentQuery = query;
 
-    setCurrentQuestion(currentQuery);
     setQuery('');
     reset();
 
     submitQuestion(currentQuery, topicSessionId);
-  }, [query, topicSessionId, isResponseStreaming, submitQuestion, reset]);
+  }, [query, topicSessionId, isStreaming, submitQuestion, reset]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && !isComposing && !isResponseStreaming) {
+      if (e.key === 'Enter' && !isComposing && !isStreaming) {
         handleFollowUpQuery();
       }
     },
-    [isComposing, isResponseStreaming, handleFollowUpQuery],
+    [isComposing, isStreaming, handleFollowUpQuery],
   );
 
   useEffect(() => {
-    if (isResponseStreaming || isLoadingHistory) {
+    if (isStreaming || isLoadingHistory) {
       return;
     }
 
-    if (historyError instanceof ApiResponseError && historyError.httpStatusCode === StatusCodes.NOT_FOUND) {
+    if (error instanceof ApiResponseError && error.httpStatusCode === StatusCodes.NOT_FOUND) {
       router.replace('/');
     }
-  }, [historyError, router, isResponseStreaming, isLoadingHistory]);
+  }, [error, router, isStreaming, isLoadingHistory]);
 
-  if (isLoadingHistory || !topicSession) {
+  if (isLoadingHistory && turns.length === 0) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center p-4 md:p-6">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-          <p className="text-lg text-muted-foreground">Loading topicSession...</p>
+          <p className="text-lg text-muted-foreground">Loading session...</p>
         </div>
       </main>
     );
   }
 
-  if (historyError instanceof Error) {
+  if (error instanceof Error && !isStreaming) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center p-4 md:p-6">
-        <div className="text-destructive">{historyError.message}</div>
+        <div className="text-destructive">{error.message}</div>
       </main>
     );
   }
@@ -106,54 +94,46 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   return (
     <main className="flex flex-1 flex-col p-4 md:p-6">
       <div className="w-full max-w-[800px] mx-auto flex flex-col gap-8">
-        {topicSession?.turns.length > 0 && (
+        {turns.length > 0 && (
           <div className="flex flex-col gap-6">
-            {topicSession.turns.map((turn, index) => (
-              <div key={`${turn.timestamp}-${index}`} className="flex flex-col gap-3">
-                <h2 className="text-3xl font-semibold text-foreground leading-loose">{turn.query}</h2>
+            {turns.map((turn, index) => {
+              const isLastTurn = index === turns.length - 1;
+              const isStreamingTurn = isLastTurn && isStreaming;
 
-                <Card className="shadow-md">
-                  <CardContent className="p-6">
-                    {turn.steps && turn.steps.length > 0 && (
-                      <AgentSteps steps={turn.steps} currentStep={null} isProcessing={false} />
-                    )}
-                    <div className="text-sm whitespace-pre-wrap">{turn.response}</div>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
+              return (
+                <div key={turn.query ? `${turn.query}-${index}` : `streaming-${index}`} className="flex flex-col gap-3">
+                  <h2 className="text-3xl font-semibold text-foreground leading-loose">{turn.query}</h2>
+
+                  <Card className="shadow-md">
+                    <CardContent className="p-6">
+                      {turn.steps && turn.steps.length > 0 && (
+                        <AgentSteps
+                          steps={turn.steps}
+                          currentStep={isStreamingTurn ? streamingCurrentStep : null}
+                          isProcessing={isStreamingTurn}
+                        />
+                      )}
+
+                      {isStreamingTurn && !turn.response ? (
+                        <div className="text-sm whitespace-pre-wrap">
+                          <span className="inline-flex items-center gap-1 text-muted-foreground">
+                            <span className="animate-pulse">●</span>
+                            <span className="animate-pulse delay-100">●</span>
+                            <span className="animate-pulse delay-200">●</span>
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-sm whitespace-pre-wrap">{turn.response}</div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
           </div>
         )}
 
-        {currentQuestion && (
-          <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-foreground leading-relaxed">{currentQuestion}</h2>
-
-            <Card className="shadow-md">
-              <CardContent className="p-6">
-                {(steps.length > 0 || currentStep || isResponseStreaming) && (
-                  <AgentSteps steps={steps} currentStep={currentStep} isProcessing={isResponseStreaming} />
-                )}
-
-                {isResponseStreaming && (
-                  <div className="text-sm whitespace-pre-wrap">
-                    {content || (
-                      <span className="inline-flex items-center gap-1 text-muted-foreground">
-                        <span className="animate-pulse">●</span>
-                        <span className="animate-pulse delay-100">●</span>
-                        <span className="animate-pulse delay-200">●</span>
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {!isResponseStreaming && content && <div className="text-sm whitespace-pre-wrap">{content}</div>}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {error && (
+        {error && isStreaming && (
           <Card className="border-destructive bg-destructive/10">
             <CardContent className="p-4">
               <p className="text-sm text-destructive">{error.message}</p>
@@ -170,7 +150,7 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
             onKeyDown={handleKeyDown}
             onSend={handleFollowUpQuery}
             placeholder="Ask Dr. Koala more questions..."
-            disabled={isResponseStreaming}
+            disabled={isStreaming}
           />
         </Card>
       </div>
