@@ -1,7 +1,9 @@
+import logging
 import tomllib
 from collections.abc import AsyncIterator
 from datetime import datetime
 from pathlib import Path
+from typing import Literal
 
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.messages import ModelClientStreamingChunkEvent
@@ -13,13 +15,15 @@ from jinja2 import Template
 
 from config.settings import BRAVE_SEARCH_API_KEY, MAX_SESSION_CONTEXT_TURNS, XAI_API_KEY
 from core.model.session import Message
+from service.session import SessionService
+
+logger = logging.getLogger(__name__)
 
 
 class AgentService:
     """Service for managing AI agents and their interactions."""
 
-    def __init__(self):
-        """Initialize agent configurations."""
+    def __init__(self, session_service: SessionService):
         config_path = Path(__file__).parent.parent / 'core' / 'constant' / 'agent_configs.toml'
         with open(config_path, 'rb') as f:
             agent_configs = tomllib.load(f)
@@ -27,9 +31,9 @@ class AgentService:
         self.primary_agent_config = agent_configs['primary_agent']
         self.search_agent_config = agent_configs['search_agent']
         self.generation_agent_config = agent_configs['generation_agent']
+        self.session_service = session_service
 
     def _render_system_prompts(self) -> tuple[str, str, str]:
-        """Render system prompts with current time."""
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         primary_prompt = Template(self.primary_agent_config['system_prompt']).render(current_time=current_time)
@@ -44,17 +48,6 @@ class AgentService:
         session_history: list[Message] | None = None,
         max_context_turns: int = MAX_SESSION_CONTEXT_TURNS,
     ) -> AsyncIterator[str]:
-        """
-        Run the multi-agent system with streaming response.
-
-        Args:
-            task: The user's question or task
-            session_history: Optional session history for context
-            max_context_turns: Maximum number of session turns to include in context (default from settings)
-
-        Yields:
-            Streaming text chunks from the agents
-        """
         primary_prompt, search_prompt, generation_prompt = self._render_system_prompts()
 
         if session_history:
@@ -128,3 +121,38 @@ class AgentService:
             async for event in primary_agent.run_stream(task=full_task):
                 if isinstance(event, ModelClientStreamingChunkEvent):
                     yield event.content
+
+    async def process_query_stream(
+        self,
+        query: str,
+        session_id: str | None = None,
+    ) -> AsyncIterator[tuple[Literal['session_id', 'content', 'done', 'error'], dict]]:
+        try:
+            session = self.session_service.get_session(session_id) if session_id else None
+
+            if not session:
+                session = self.session_service.create_session()
+
+            session_id = session.session_id
+
+            yield ('session_id', {'session_id': session_id})
+
+            self.session_service.add_user_message(session_id, query)
+
+            session_history = self.session_service.get_recent_messages(session_id, MAX_SESSION_CONTEXT_TURNS)
+
+            full_response = ''
+            async for chunk in self.run_agent_stream(
+                task=query, session_history=session_history, max_context_turns=MAX_SESSION_CONTEXT_TURNS
+            ):
+                if chunk:
+                    full_response += chunk
+                    yield ('content', {'content': chunk})
+
+            self.session_service.add_assistant_message(session_id, full_response)
+
+            yield ('done', {})
+
+        except Exception as e:
+            logger.error(f'Error in agent query processing: {e}', exc_info=True)
+            yield ('error', {'error': str(e)})

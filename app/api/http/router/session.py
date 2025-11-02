@@ -1,29 +1,25 @@
-import logging
-
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 
+from api.http.dependencies.session import SessionServiceDependency
 from api.http.schema.session import (
     SessionHistoryResponseModel,
 )
 from core.error import NotFoundError
-from repository.memory.session import SessionMemoryRepository
 
 router = APIRouter(prefix='/sessions', tags=['Sessions'])
-logger = logging.getLogger(__name__)
+
+
+@router.post('', response_model=SessionHistoryResponseModel)
+async def create_session(session_service: SessionServiceDependency):
+    session = session_service.create_session()
+    return SessionHistoryResponseModel(id=session.session_id, turns=[])
 
 
 @router.get('/{session_id}', response_model=SessionHistoryResponseModel)
-async def get_session_by_id(session_id: str):
-    """
-    Get a session by its ID.
-    """
-    session_repo = SessionMemoryRepository()
-    session = session_repo.get_session(session_id)
+async def get_session_by_id(session_id: str, session_service: SessionServiceDependency):
+    session = session_service.get_session(session_id)
 
-    if session is None:
+    if not session:
         raise NotFoundError('Session not found')
 
-    return JSONResponse(
-        content=SessionHistoryResponseModel(id=session.session_id, turns=session.get_turns()).model_dump()
-    )
+    return SessionHistoryResponseModel(id=session.session_id, turns=session.get_turns())
