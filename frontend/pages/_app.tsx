@@ -5,6 +5,8 @@ import AppContainer from '@/components/AppContainer';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 import '@/styles/globals.css';
+import 'katex/dist/katex.min.css';
+import 'highlight.js/styles/github-dark.css';
 
 const queryClientConfig = {
   queries: {

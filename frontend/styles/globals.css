@@ -133,3 +133,30 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.markdown-content {
+  @apply text-foreground;
+}
+
+.markdown-content > *:first-child {
+  @apply mt-0;
+}
+
+.markdown-content > *:last-child {
+  @apply mb-0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.markdown-content > * {
+  animation: fadeIn 0.2s ease-out;
+}

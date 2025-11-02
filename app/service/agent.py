@@ -109,7 +109,7 @@ class AgentService:
                 description='A web search assistant that can search the web.',
                 model_client=model_client,
                 system_message=search_prompt,
-                model_client_stream=True,
+                model_client_stream=False,
                 max_tool_iterations=3,
                 workbench=brave_search_mcp,
             )
@@ -121,8 +121,7 @@ class AgentService:
                 description='A generation assistant that can generate a summary based on the search results.',
                 model_client=model_client,
                 system_message=generation_prompt,
-                model_client_stream=True,
-                workbench=brave_search_mcp,
+                model_client_stream=False,
             )
 
             generation_agent_tool = AgentTool(generation_agent, return_value_as_last_message=True)
@@ -204,7 +203,7 @@ class AgentService:
                     elif tool_name == _GENERATION_AGENT_NAME:
                         description = 'Generating the summary'
                     else:
-                        logger.warning(f'Unknown tool name: {tool_name}')
+                        logger.debug(f'Unknown tool name: {tool_name}')
 
                     if not description:
                         continue

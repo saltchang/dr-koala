@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import AgentSteps from '@/components/AgentSteps';
 import ChatInput from '@/components/ChatInput';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTopicSessionWithStreaming } from '@/hooks/useTopicSessionWithStreaming';
 import { ApiResponseError } from '@/types/api';
@@ -122,16 +123,16 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
                       )}
 
                       {isStreamingTurn && !turn.response ? (
-                        <div className="text-sm whitespace-pre-wrap">
+                        <div className="text-sm">
                           <span className="inline-flex items-center gap-1 text-muted-foreground">
                             <span className="animate-pulse">●</span>
                             <span className="animate-pulse delay-100">●</span>
                             <span className="animate-pulse delay-200">●</span>
                           </span>
                         </div>
-                      ) : (
-                        <div className="text-sm whitespace-pre-wrap">{turn.response}</div>
-                      )}
+                      ) : turn.response ? (
+                        <MarkdownRenderer content={turn.response} />
+                      ) : null}
                     </CardContent>
                   </Card>
                 </div>
