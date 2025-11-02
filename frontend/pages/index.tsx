@@ -8,9 +8,7 @@ export default function Home() {
 
 type StaticParams = ParsedUrlQuery;
 
-export async function getStaticProps({
-  params,
-}: GetStaticPropsContext): Promise<GetStaticPropsResult<StaticParams>> {
+export async function getStaticProps({ params }: GetStaticPropsContext): Promise<GetStaticPropsResult<StaticParams>> {
   return {
     props: params ?? {},
   };

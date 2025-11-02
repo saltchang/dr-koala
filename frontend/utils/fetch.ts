@@ -114,12 +114,10 @@ export const mutationFunction = async <TRequest = Record<string, unknown> | Form
   return handleFetch<TResponseData>(url, options);
 };
 
-interface StreamChunk<T = unknown> {
-  done: boolean;
-  content?: string;
+type StreamChunk<T = unknown> = T & {
+  done?: boolean;
   error?: string;
-  data?: T;
-}
+};
 
 interface StreamOptions<TRequest = Record<string, unknown>, TChunk = unknown> {
   path: string;

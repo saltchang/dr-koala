@@ -1,12 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { components } from '@/types/apiSchema';
+import type { ProcessingStep } from '@/types/topicSession';
 import { streamFunction } from '@/utils/fetch';
 import { useTopicSession } from './useTopicSession';
 import { useTopicSessions } from './useTopicSessions';
 
 interface UseAskAgentResult {
   content: string;
+  steps: ProcessingStep[];
+  currentStep: string | null;
   isLoading: boolean;
   error: Error | null;
   submitQuestion: (query: string, sessionId: string) => Promise<void>;
@@ -20,6 +23,8 @@ interface StreamVariables {
 
 export const useAskAgent = (): UseAskAgentResult => {
   const [content, setContent] = useState<string>('');
+  const [steps, setSteps] = useState<ProcessingStep[]>([]);
+  const [currentStep, setCurrentStep] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
 
@@ -36,8 +41,13 @@ export const useAskAgent = (): UseAskAgentResult => {
 
       abortControllerRef.current = new AbortController();
       setContent('');
+      setSteps([]);
+      setCurrentStep(null);
 
-      return streamFunction<components['schemas']['AskAgentRequest'], never>({
+      return streamFunction<
+        components['schemas']['AskAgentRequest'],
+        components['schemas']['AskAgentResponseStreamChunkModel']
+      >({
         path: '/ask-agent',
         request: {
           query,
@@ -47,11 +57,42 @@ export const useAskAgent = (): UseAskAgentResult => {
           if (chunk.content) {
             setContent((prev) => prev + chunk.content);
           }
+
+          if (!chunk.step_description || !chunk.step_status) {
+            return;
+          }
+
+          const newStep: ProcessingStep = {
+            description: chunk.step_description,
+            status: chunk.step_status,
+            timestamp: new Date().toISOString(),
+          };
+
+          if (chunk.step_status === 'completed') {
+            setSteps((prev) => {
+              const existingIndex = prev.findIndex(
+                (s) => s.description === chunk.step_description && s.status === 'in_progress',
+              );
+              if (existingIndex !== -1) {
+                const updated = [...prev];
+                updated[existingIndex] = newStep;
+                return updated;
+              }
+              return [...prev, newStep];
+            });
+            setCurrentStep(null);
+            return;
+          }
+
+          // in_progress step
+          setCurrentStep(chunk.step_description);
+          setSteps((prev) => [...prev, newStep]);
         },
         onError: (error) => {
           throw error;
         },
         onComplete: () => {
+          setCurrentStep(null);
           queryClient.invalidateQueries({
             queryKey: useTopicSession.getQueryKey(sessionId),
           });
@@ -81,6 +122,8 @@ export const useAskAgent = (): UseAskAgentResult => {
 
   const reset = useCallback(() => {
     setContent('');
+    setSteps([]);
+    setCurrentStep(null);
     resetAskAgent();
   }, [resetAskAgent]);
 
@@ -95,12 +138,14 @@ export const useAskAgent = (): UseAskAgentResult => {
   const data = useMemo(
     () => ({
       content,
+      steps,
+      currentStep,
       isLoading: isAskingAgent,
       error: askAgentError,
       submitQuestion,
       reset,
     }),
-    [content, isAskingAgent, askAgentError, submitQuestion, reset],
+    [content, steps, currentStep, isAskingAgent, askAgentError, submitQuestion, reset],
   );
 
   return data;

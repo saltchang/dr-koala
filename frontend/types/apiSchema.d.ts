@@ -128,6 +128,10 @@ export interface components {
     AskAgentResponseStreamChunkModel: {
       /** Content */
       content?: string | null;
+      /** Step Description */
+      step_description?: string | null;
+      /** Step Status */
+      step_status?: ('in_progress' | 'completed') | null;
       /** Done */
       done?: boolean | null;
       /** Error */
@@ -152,6 +156,21 @@ export interface components {
       /** Detail */
       detail?: components['schemas']['ValidationError'][];
     };
+    /** ProcessingStep */
+    ProcessingStep: {
+      /** Description */
+      description: string;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'in_progress' | 'completed';
+      /**
+       * Timestamp
+       * Format: date-time
+       */
+      timestamp?: string;
+    };
     /** RetrieveSessionResponseModel */
     RetrieveSessionResponseModel: {
       /** Id */
@@ -172,10 +191,7 @@ export interface components {
       /** Is Verified */
       is_verified: boolean;
     };
-    /**
-     * SessionTurn
-     * @description Structured session turn for card-based layout.
-     */
+    /** SessionTurn */
     SessionTurn: {
       /** Query */
       query: string;
@@ -185,6 +201,8 @@ export interface components {
       timestamp: string;
       /** Sources */
       sources?: string[];
+      /** Steps */
+      steps?: components['schemas']['ProcessingStep'][];
     };
     /** UpdateUserRequestModel */
     UpdateUserRequestModel: {

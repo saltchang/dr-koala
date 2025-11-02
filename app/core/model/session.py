@@ -1,6 +1,7 @@
 """Session and message data models."""
 
 from datetime import UTC, datetime
+from typing import Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -8,35 +9,37 @@ from pydantic import BaseModel, Field
 from core.enum.session import MessageRole
 
 
-class Message(BaseModel):
-    """Single message in a session."""
-
-    role: MessageRole
-    content: str
+class ProcessingStep(BaseModel):
+    description: str
+    status: Literal['in_progress', 'completed']
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
-class SessionTurn(BaseModel):
-    """Structured session turn for card-based layout."""
+class Message(BaseModel):
+    role: MessageRole
+    content: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    steps: list[ProcessingStep] = Field(default_factory=list)
 
+
+class SessionTurn(BaseModel):
     query: str
     response: str
     timestamp: str
     sources: list[str] = Field(default_factory=list)
+    steps: list[ProcessingStep] = Field(default_factory=list)
 
 
 class Session(BaseModel):
-    """Session session with message history."""
-
     session_id: str = Field(default_factory=lambda: str(uuid4()))
     title: str
     messages: list[Message] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    def add_message(self, role: MessageRole, content: str) -> None:
+    def add_message(self, role: MessageRole, content: str, steps: list[ProcessingStep] | None = None) -> None:
         """Add a message to the session."""
-        self.messages.append(Message(role=role, content=content))
+        self.messages.append(Message(role=role, content=content, steps=steps or []))
         self.updated_at = datetime.now(UTC)
 
     def get_recent_messages(self, max_turns: int = 5) -> list[Message]:
@@ -74,6 +77,7 @@ class Session(BaseModel):
                         response=message.content,
                         timestamp=(current_timestamp or message.timestamp).isoformat(),
                         sources=[],
+                        steps=message.steps,
                     )
                 )
                 current_query = None

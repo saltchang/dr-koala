@@ -3,6 +3,12 @@ export enum MessageRole {
   ASSISTANT = 'assistant',
 }
 
+export interface ProcessingStep {
+  description: string;
+  status: 'in_progress' | 'completed';
+  timestamp?: string;
+}
+
 export interface TopicSessionTurn {
   role: MessageRole;
   content: string;
@@ -20,6 +26,7 @@ interface TopicSessionHistoryTurn {
   response: string;
   timestamp: string;
   sources?: string[];
+  steps?: ProcessingStep[];
 }
 
 export interface TopicSessionHistory {

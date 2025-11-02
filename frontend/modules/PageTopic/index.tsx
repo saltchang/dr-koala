@@ -1,7 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
 import { useRouter } from 'next/router';
 import { memo, useCallback, useEffect, useState } from 'react';
+import AgentSteps from '@/components/AgentSteps';
 import ChatInput from '@/components/ChatInput';
+import { Card, CardContent } from '@/components/ui/card';
 import { useAskAgent } from '@/hooks/useAskAgent';
 import { useTopicSession } from '@/hooks/useTopicSession';
 import { ApiResponseError } from '@/types/api';
@@ -19,7 +21,7 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   const [currentQuestion, setCurrentQuestion] = useState<string>('');
   const [hasStartedInitialQuery, setHasStartedInitialQuery] = useState(false);
 
-  const { content, isLoading: isResponseStreaming, error, submitQuestion, reset } = useAskAgent();
+  const { content, steps, currentStep, isLoading: isResponseStreaming, error, submitQuestion, reset } = useAskAgent();
 
   const {
     data: topicSession,
@@ -103,69 +105,74 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
 
   return (
     <main className="flex flex-1 flex-col p-4 md:p-6">
-      <div className="w-full max-w-[800px] mx-auto flex flex-col gap-4">
+      <div className="w-full max-w-[800px] mx-auto flex flex-col gap-8">
         {topicSession?.turns.length > 0 && (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             {topicSession.turns.map((turn, index) => (
-              <div key={`${turn.timestamp}-${index}`} className="p-6 rounded-lg border bg-card">
-                <div className="text-sm font-medium text-muted-foreground mb-2">Question:</div>
-                <div className="text-sm whitespace-pre-wrap">{turn.query}</div>
-                <div className="text-sm font-medium text-muted-foreground mb-2 mt-4">Answer:</div>
-                <div className="text-sm whitespace-pre-wrap">{turn.response}</div>
+              <div key={`${turn.timestamp}-${index}`} className="flex flex-col gap-3">
+                <h2 className="text-3xl font-semibold text-foreground leading-loose">{turn.query}</h2>
+
+                <Card className="shadow-md">
+                  <CardContent className="p-6">
+                    {turn.steps && turn.steps.length > 0 && (
+                      <AgentSteps steps={turn.steps} currentStep={null} isProcessing={false} />
+                    )}
+                    <div className="text-sm whitespace-pre-wrap">{turn.response}</div>
+                  </CardContent>
+                </Card>
               </div>
             ))}
           </div>
         )}
 
         {currentQuestion && (
-          <div className="p-6 rounded-lg border bg-card">
-            <div className="text-sm font-medium text-muted-foreground mb-2">Question:</div>
-            <div className="text-sm whitespace-pre-wrap">{currentQuestion}</div>
+          <div className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold text-foreground leading-relaxed">{currentQuestion}</h2>
 
-            {isResponseStreaming && (
-              <>
-                <div className="text-sm font-medium text-muted-foreground mb-2 mt-4">Answer:</div>
-                <div className="text-sm whitespace-pre-wrap">
-                  {content || (
-                    <span className="inline-flex items-center gap-1 text-muted-foreground">
-                      <span className="animate-pulse">●</span>
-                      <span className="animate-pulse delay-100">●</span>
-                      <span className="animate-pulse delay-200">●</span>
-                    </span>
-                  )}
-                </div>
-              </>
-            )}
+            <Card className="shadow-md">
+              <CardContent className="p-6">
+                {(steps.length > 0 || currentStep || isResponseStreaming) && (
+                  <AgentSteps steps={steps} currentStep={currentStep} isProcessing={isResponseStreaming} />
+                )}
 
-            {!isResponseStreaming && content && (
-              <>
-                <div className="text-sm font-medium text-muted-foreground mb-2 mt-4">Answer:</div>
-                <div className="text-sm whitespace-pre-wrap">{content}</div>
-              </>
-            )}
+                {isResponseStreaming && (
+                  <div className="text-sm whitespace-pre-wrap">
+                    {content || (
+                      <span className="inline-flex items-center gap-1 text-muted-foreground">
+                        <span className="animate-pulse">●</span>
+                        <span className="animate-pulse delay-100">●</span>
+                        <span className="animate-pulse delay-200">●</span>
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {!isResponseStreaming && content && <div className="text-sm whitespace-pre-wrap">{content}</div>}
+              </CardContent>
+            </Card>
           </div>
         )}
 
         {error && (
-          <div className="p-4 rounded-lg border border-destructive bg-destructive/10">
-            <p className="text-sm text-destructive">{error.message}</p>
-          </div>
+          <Card className="border-destructive bg-destructive/10">
+            <CardContent className="p-4">
+              <p className="text-sm text-destructive">{error.message}</p>
+            </CardContent>
+          </Card>
         )}
 
-        <div className="sticky bottom-4 p-6 rounded-lg border bg-card shadow-lg">
-          <div className="flex flex-col gap-3">
-            <ChatInput
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onCompositionStart={() => setIsComposing(true)}
-              onCompositionEnd={() => setIsComposing(false)}
-              onKeyDown={handleKeyDown}
-              onSend={handleFollowUpQuery}
-              placeholder="Ask Dr. Koala more questions..."
-              disabled={isResponseStreaming}
-            />
-          </div>
-        </div>
+        <Card className="sticky bottom-4 shadow-lg">
+          <ChatInput
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={() => setIsComposing(false)}
+            onKeyDown={handleKeyDown}
+            onSend={handleFollowUpQuery}
+            placeholder="Ask Dr. Koala more questions..."
+            disabled={isResponseStreaming}
+          />
+        </Card>
       </div>
     </main>
   );

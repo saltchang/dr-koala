@@ -12,14 +12,7 @@ function SVG({ src, ref, cacheRequests = true, ...props }: Props) {
     return null;
   }
 
-  return (
-    <InlineSVG
-      innerRef={ref}
-      src={src}
-      cacheRequests={cacheRequests}
-      {...props}
-    />
-  );
+  return <InlineSVG innerRef={ref} src={src} cacheRequests={cacheRequests} {...props} />;
 }
 
 SVG.displayName = 'SVG';

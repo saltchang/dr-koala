@@ -41,20 +41,16 @@ function PageHome() {
       </div>
 
       <div className="w-full max-w-[640px]">
-        <div className="p-6 rounded-lg border bg-card shadow-lg sticky bottom-4">
-          <div className="flex flex-col gap-3">
-            <ChatInput
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onCompositionStart={() => setIsComposing(true)}
-              onCompositionEnd={() => setIsComposing(false)}
-              onKeyDown={(e) => e.key === 'Enter' && !isComposing && handleSubmit()}
-              onSend={handleSubmit}
-              placeholder="Ask Dr. Koala anything..."
-              disabled={isCreatingSession}
-            />
-          </div>
-        </div>
+        <ChatInput
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
+          onKeyDown={(e) => e.key === 'Enter' && !isComposing && handleSubmit()}
+          onSend={handleSubmit}
+          placeholder="Ask Dr. Koala anything..."
+          disabled={isCreatingSession}
+        />
       </div>
     </main>
   );

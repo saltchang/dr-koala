@@ -1,7 +1,7 @@
 import logging
 
 from core.enum.session import MessageRole
-from core.model.session import Message, Session
+from core.model.session import Message, ProcessingStep, Session
 from repository.memory.session import SessionMemoryRepository
 
 logger = logging.getLogger(__name__)
@@ -17,8 +17,8 @@ class SessionService:
     def add_user_message(self, session_id: str, content: str) -> None:
         self.session_repo.add_message(session_id, MessageRole.USER, content)
 
-    def add_assistant_message(self, session_id: str, content: str) -> None:
-        self.session_repo.add_message(session_id, MessageRole.ASSISTANT, content)
+    def add_assistant_message(self, session_id: str, content: str, steps: list[ProcessingStep] | None = None) -> None:
+        self.session_repo.add_message(session_id, MessageRole.ASSISTANT, content, steps=steps)
 
     def get_recent_messages(self, session_id: str, max_turns: int) -> list[Message]:
         return self.session_repo.get_recent_messages(session_id, max_turns)

@@ -1,7 +1,7 @@
 """In-memory session repository implementation."""
 
 from core.enum.session import MessageRole
-from core.model.session import Message, Session
+from core.model.session import Message, ProcessingStep, Session
 from utility.decorator import singleton
 
 
@@ -18,11 +18,13 @@ class SessionMemoryRepository:
     def get_session(self, session_id: str) -> Session | None:
         return self._sessions.get(session_id)
 
-    def add_message(self, session_id: str, role: MessageRole, content: str) -> None:
+    def add_message(
+        self, session_id: str, role: MessageRole, content: str, steps: list[ProcessingStep] | None = None
+    ) -> None:
         session = self._sessions.get(session_id)
         if session is None:
             raise KeyError(f'Session {session_id} not found')
-        session.add_message(role=role, content=content)
+        session.add_message(role=role, content=content, steps=steps)
 
     def get_recent_messages(self, session_id: str, max_turns: int = 5) -> list[Message]:
         session = self._sessions.get(session_id)

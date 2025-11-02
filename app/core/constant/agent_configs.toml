@@ -25,7 +25,7 @@ You can use the tool agents when needed.
 The current time is {{ current_time }}.
 """
 
-[search_agent]
+[web_search_agent]
 model = "x-ai/grok-4-fast-reasoning"
 
 system_prompt = """
