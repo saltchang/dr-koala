@@ -4,12 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.model.user import Role
 from core.protocol.repository.role import RoleRepository
 from core.type import IDType
-from utility.decorator import singleton
 
 from ..model import DbRole
 
 
-@singleton
 class PsqlRoleRepository(RoleRepository):
     def __init__(self, session: AsyncSession):
         self.session = session

@@ -182,9 +182,9 @@ class AgentService:
         current_step: str | None = None
 
         try:
-            self.session_service.add_user_message(session_id, query)
+            await self.session_service.add_user_message(session_id, query)
 
-            session_history = self.session_service.get_recent_messages(session_id, MAX_SESSION_CONTEXT_TURNS)
+            session_history = await self.session_service.get_recent_messages(session_id, MAX_SESSION_CONTEXT_TURNS)
 
             async for event_type, event_data in self._run_agent_stream(
                 task=query, session_history=session_history, max_context_turns=MAX_SESSION_CONTEXT_TURNS
@@ -243,7 +243,7 @@ class AgentService:
                 yield (AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'})
 
             if full_response:
-                self.session_service.add_assistant_message(session_id, full_response, steps=steps)
+                await self.session_service.add_assistant_message(session_id, full_response, steps=steps)
 
             yield (AgentEventTypeEnum.DONE, {})
 
@@ -256,7 +256,7 @@ class AgentService:
 
             if full_response:
                 error_message = '\n\n[Response was interrupted due to connection issue]'
-                self.session_service.add_assistant_message(session_id, full_response + error_message, steps=steps)
+                await self.session_service.add_assistant_message(session_id, full_response + error_message, steps=steps)
                 yield (AgentEventTypeEnum.CONTENT, {'content': error_message})
 
             yield (AgentEventTypeEnum.ERROR, {'error': 'Connection was interrupted. Please try again.'})

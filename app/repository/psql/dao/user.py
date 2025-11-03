@@ -6,12 +6,10 @@ from core.error import NotFoundError
 from core.model.user import User
 from core.protocol.repository.user import UserRepository
 from core.type import IDType
-from utility.decorator import singleton
 
 from ..model import DbRole, DbUser
 
 
-@singleton
 class PsqlUserRepository(UserRepository):
     def __init__(self, session: AsyncSession):
         self.session = session

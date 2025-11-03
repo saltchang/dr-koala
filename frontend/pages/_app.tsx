@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import '@/styles/globals.css';
 import 'katex/dist/katex.min.css';
 import 'highlight.js/styles/github-dark.css';
+import Head from 'next/head';
 
 const queryClientConfig = {
   queries: {
@@ -35,12 +36,29 @@ export default function App({ Component, pageProps }: AppProps) {
   );
 
   return (
-    <ThemeProvider themes={['dark'] as const} attribute="class" defaultTheme="dark" disableTransitionOnChange>
-      <QueryClientProvider client={queryClient}>
-        <AppContainer>
-          <Component {...pageProps} />
-        </AppContainer>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <>
+      <Head>
+        <meta charSet="utf-8" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"
+        />
+
+        <title>Dr. Koala</title>
+        <meta
+          name="description"
+          content="Dr. Koala is a chatbot that can answer questions and help you with your problems."
+        />
+        <meta name="application-name" content="Dr. Koala" />
+      </Head>
+      <ThemeProvider themes={['dark'] as const} attribute="class" defaultTheme="dark" disableTransitionOnChange>
+        <QueryClientProvider client={queryClient}>
+          <AppContainer>
+            <Component {...pageProps} />
+          </AppContainer>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </>
   );
 }
