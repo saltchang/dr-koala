@@ -61,3 +61,18 @@ class PsqlSessionRepository(SessionRepositoryProtocol):
     async def get_all_sessions(self) -> list[Session]:
         result = await self.session.execute(select(DbSession).order_by(DbSession.update_time.desc()))
         return [db_session.to_core() for db_session in result.scalars().all()]
+
+    async def delete_session(self, session_id: str) -> bool:
+        result = await self.session.execute(select(DbSession).where(DbSession.session_id == session_id))
+        db_session = result.scalar_one_or_none()
+
+        if db_session is None:
+            return False
+
+        try:
+            await self.session.delete(db_session)
+            await self.session.commit()
+            return True
+        except SQLAlchemyError:
+            await self.session.rollback()
+            raise

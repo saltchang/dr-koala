@@ -30,3 +30,6 @@ class SessionService:
 
     async def get_all_sessions(self) -> list[Session]:
         return await self.session_repo.get_all_sessions()
+
+    async def delete_session(self, session_id: str) -> bool:
+        return await self.session_repo.delete_session(session_id)

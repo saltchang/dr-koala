@@ -43,3 +43,13 @@ async def get_session_by_id(session_id: str, session_service: SessionServiceDepe
         turns=session.get_turns(),
         in_progress_query=session.get_in_progress_query(),
     )
+
+
+@router.delete('/{session_id}')
+async def delete_session(session_id: str, session_service: SessionServiceDependency):
+    deleted = await session_service.delete_session(session_id)
+
+    if not deleted:
+        raise NotFoundError('Session not found')
+
+    return {'success': True}

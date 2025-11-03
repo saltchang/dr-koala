@@ -31,3 +31,9 @@ class InMemorySessionRepository(SessionRepositoryProtocol):
 
     async def get_all_sessions(self) -> list[Session]:
         return sorted(self._sessions.values(), key=lambda s: s.updated_at, reverse=True)
+
+    async def delete_session(self, session_id: str) -> bool:
+        if session_id in self._sessions:
+            del self._sessions[session_id]
+            return True
+        return False
