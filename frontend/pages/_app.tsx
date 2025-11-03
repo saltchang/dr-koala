@@ -1,8 +1,10 @@
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Cookies from 'js-cookie';
 import type { AppProps } from 'next/app';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AppContainer from '@/components/AppContainer';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import UserAgreementDialog from '@/components/UserAgreementDialog';
 
 import '@/styles/globals.css';
 import 'katex/dist/katex.min.css';
@@ -16,6 +18,8 @@ const queryClientConfig = {
     refetchOnWindowFocus: true,
   },
 };
+
+const TERMS_AGREEMENT_COOKIE = 'dr_koala_terms_agreed';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(
@@ -34,6 +38,21 @@ export default function App({ Component, pageProps }: AppProps) {
         }),
       }),
   );
+
+  const [showAgreementDialog, setShowAgreementDialog] = useState(false);
+
+  useEffect(() => {
+    const hasAgreed = Cookies.get(TERMS_AGREEMENT_COOKIE);
+    if (!hasAgreed) {
+      setShowAgreementDialog(true);
+    }
+  }, []);
+
+  const handleAgreeTerms = () => {
+    const agreementTime = new Date().toISOString();
+    Cookies.set(TERMS_AGREEMENT_COOKIE, agreementTime, { expires: 36500 });
+    setShowAgreementDialog(false);
+  };
 
   return (
     <>
@@ -54,6 +73,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
       <ThemeProvider themes={['dark'] as const} attribute="class" defaultTheme="dark" disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
+          <UserAgreementDialog open={showAgreementDialog} onConfirm={handleAgreeTerms} />
           <AppContainer>
             <Component {...pageProps} />
           </AppContainer>

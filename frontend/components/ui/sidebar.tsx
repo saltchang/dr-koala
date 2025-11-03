@@ -62,10 +62,22 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = useState(false);
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = useState(defaultOpen);
   const open = openProp ?? _open;
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const cookies = document.cookie.split('; ');
+    const sidebarCookie = cookies.find((c) => c.startsWith(`${SIDEBAR_COOKIE_NAME}=`));
+
+    if (sidebarCookie) {
+      const value = sidebarCookie.split('=')[1];
+      const cookieValue = value === 'true';
+      _setOpen(cookieValue);
+    }
+    // _setOpen is a stable function from useState, safe to omit from deps
+  }, []);
   const setOpen = useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === 'function' ? value(open) : value;
@@ -97,8 +109,6 @@ function SidebarProvider({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [toggleSidebar]);
 
-  // We add a state so that we can do data-state="expanded" or "collapsed".
-  // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? 'expanded' : 'collapsed';
 
   const contextValue = useMemo<SidebarContextProps>(

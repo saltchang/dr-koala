@@ -90,18 +90,20 @@ function MainSidebar() {
                 topicSessions.map((topicSession) => (
                   <SidebarMenuItem key={topicSession.id} className="group/item">
                     <SidebarMenuButton asChild>
-                      <button
-                        type="button"
-                        className="flex flex-col items-start w-full cursor-pointer h-fit py-2 px-3 pr-10 relative"
-                        onClick={() => handleTopicSessionClick(topicSession.id)}
-                      >
-                        <div className="flex items-center gap-2 w-full">
-                          <MessageSquareTextIcon className="h-4 w-4 shrink-0" />
-                          <div className="truncate flex-1 text-left">{topicSession.query}</div>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(topicSession.timestamp).toLocaleTimeString()}
-                        </div>
+                      <div className="flex flex-col items-start w-full h-fit py-2 px-3 pr-10 relative">
+                        <button
+                          type="button"
+                          className="flex flex-col items-start w-full cursor-pointer"
+                          onClick={() => handleTopicSessionClick(topicSession.id)}
+                        >
+                          <div className="flex items-center gap-2 w-full">
+                            <MessageSquareTextIcon className="h-4 w-4 shrink-0" />
+                            <div className="truncate flex-1 text-left">{topicSession.query}</div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(topicSession.timestamp).toLocaleTimeString()}
+                          </div>
+                        </button>
                         <button
                           type="button"
                           className="opacity-0 group-hover/item:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-destructive/10 rounded-sm cursor-pointer"
@@ -110,7 +112,7 @@ function MainSidebar() {
                         >
                           <Trash2Icon className="h-4 w-4 text-destructive" />
                         </button>
-                      </button>
+                      </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))
