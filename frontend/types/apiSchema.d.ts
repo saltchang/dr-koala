@@ -179,6 +179,8 @@ export interface components {
       title: string;
       /** Turns */
       turns: components['schemas']['SessionTurn'][];
+      /** In Progress Query */
+      in_progress_query?: string | null;
     };
     /** RetrieveUserModel */
     RetrieveUserModel: {

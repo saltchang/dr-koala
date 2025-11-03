@@ -84,3 +84,13 @@ class Session(BaseModel):
                 current_timestamp = None
 
         return turns
+
+    def get_in_progress_query(self) -> str | None:
+        if not self.messages:
+            return None
+
+        last_message = self.messages[-1]
+        if last_message.role == MessageRole.USER:
+            return last_message.content
+
+        return None

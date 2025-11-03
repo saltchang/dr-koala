@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import tomllib
@@ -24,6 +25,7 @@ from jinja2 import Template
 from config.settings import BRAVE_SEARCH_API_KEY, MAX_SESSION_CONTEXT_TURNS, XAI_API_KEY
 from core.enum.agent import AgentEventStepNameEnum, AgentEventTypeEnum
 from core.model.session import Message, ProcessingStep
+from service.agent_task_manager import AgentTask, get_task_manager
 from service.session import SessionService
 
 logger = logging.getLogger(__name__)
@@ -49,7 +51,7 @@ class AgentService:
         self.session_service = session_service
 
     def _render_system_prompts(self) -> tuple[str, str, str]:
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S %z')
 
         primary_prompt = Template(self.primary_agent_config['system_prompt']).render(current_time=current_time)
         search_prompt = Template(self.search_agent_config['system_prompt']).render(current_time=current_time)
@@ -103,7 +105,11 @@ class AgentService:
             },
         )
 
-        async with McpWorkbench(brave_search_server_params) as brave_search_mcp:
+        brave_search_mcp = None
+        try:
+            brave_search_mcp = McpWorkbench(brave_search_server_params)
+            await brave_search_mcp.__aenter__()
+
             web_search_agent = AssistantAgent(
                 _WEB_SEARCH_AGENT_NAME,
                 description='A web search assistant that can search the web.',
@@ -171,23 +177,22 @@ class AgentService:
             except Exception as e:
                 logger.error(f'Error during agent streaming: {e}', exc_info=True)
                 raise
+        finally:
+            if brave_search_mcp is not None:
+                try:
+                    await brave_search_mcp.__aexit__(None, None, None)
+                except (ExceptionGroup, Exception) as cleanup_error:
+                    # this may happen when the client disconnects
+                    logger.warning(f'Error during McpWorkbench cleanup: {cleanup_error}')
 
-    async def process_query_stream(  # noqa: C901
-        self,
-        query: str,
-        session_id: str,
-    ) -> AsyncIterator[tuple[AgentEventTypeEnum, dict]]:
+    async def _process_query_background(self, task: AgentTask, session_history: list[Message]) -> None:  # noqa: C901
         full_response = ''
         steps: list[ProcessingStep] = []
         current_step: str | None = None
 
         try:
-            await self.session_service.add_user_message(session_id, query)
-
-            session_history = await self.session_service.get_recent_messages(session_id, MAX_SESSION_CONTEXT_TURNS)
-
             async for event_type, event_data in self._run_agent_stream(
-                task=query, session_history=session_history, max_context_turns=MAX_SESSION_CONTEXT_TURNS
+                task=task.query, session_history=session_history, max_context_turns=MAX_SESSION_CONTEXT_TURNS
             ):
                 if event_type == AgentEventStepNameEnum.TOOL_CALL and isinstance(event_data, dict):
                     tool_name = event_data.get('tool_name', 'unknown tool')
@@ -210,53 +215,102 @@ class AgentService:
 
                     if current_step:
                         self._stop_last_step(steps)
-                        yield (AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'})
+                        await task.add_event(
+                            AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'}
+                        )
 
                     current_step = description
                     steps.append(ProcessingStep(description=description, status='in_progress'))
-                    yield (AgentEventTypeEnum.STEP, {'description': description, 'status': 'in_progress'})
+                    await task.add_event(AgentEventTypeEnum.STEP, {'description': description, 'status': 'in_progress'})
 
                 elif event_type == AgentEventStepNameEnum.TOOL_RESULT:
                     if current_step:
                         self._stop_last_step(steps)
-                        yield (AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'})
+                        await task.add_event(
+                            AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'}
+                        )
                         current_step = None
 
                 elif event_type == AgentEventStepNameEnum.THOUGHT:
                     logger.info('Thought event received')
                     if current_step:
                         self._stop_last_step(steps)
-                        yield (AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'})
+                        await task.add_event(
+                            AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'}
+                        )
 
                     current_step = 'Thinking...'
                     steps.append(ProcessingStep(description=current_step, status='in_progress'))
-                    yield (AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'in_progress'})
+                    await task.add_event(
+                        AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'in_progress'}
+                    )
 
                 elif event_type == AgentEventStepNameEnum.TEXT and isinstance(event_data, str):
                     chunk = event_data
                     if chunk:
                         full_response += chunk
-                        yield (AgentEventTypeEnum.CONTENT, {'content': chunk})
+                        await task.add_event(AgentEventTypeEnum.CONTENT, {'content': chunk})
 
             if current_step:
                 self._stop_last_step(steps)
-                yield (AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'})
+                await task.add_event(AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'})
 
             if full_response:
-                await self.session_service.add_assistant_message(session_id, full_response, steps=steps)
+                await self.session_service.add_assistant_message(task.session_id, full_response, steps=steps)
 
-            yield (AgentEventTypeEnum.DONE, {})
+            await task.add_event(AgentEventTypeEnum.DONE, {})
+            logger.info(f'Successfully completed processing for session {task.session_id}')
 
+        except asyncio.CancelledError:
+            logger.info(f'Processing task cancelled for session {task.session_id}')
+            raise
         except Exception as e:
             logger.error(f'Error in agent query processing: {e}', exc_info=True)
 
             if current_step:
                 self._stop_last_step(steps)
-                yield (AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'})
+                await task.add_event(AgentEventTypeEnum.STEP, {'description': current_step, 'status': 'completed'})
 
             if full_response:
-                error_message = '\n\n[Response was interrupted due to connection issue]'
-                await self.session_service.add_assistant_message(session_id, full_response + error_message, steps=steps)
-                yield (AgentEventTypeEnum.CONTENT, {'content': error_message})
+                error_message = '\n\n[Response was interrupted due to an error]'
+                await self.session_service.add_assistant_message(
+                    task.session_id, full_response + error_message, steps=steps
+                )
+                await task.add_event(AgentEventTypeEnum.CONTENT, {'content': error_message})
 
-            yield (AgentEventTypeEnum.ERROR, {'error': 'Connection was interrupted. Please try again.'})
+            await task.add_event(
+                AgentEventTypeEnum.ERROR, {'error': 'An error occurred during processing. Please try again.'}
+            )
+
+    async def process_query_stream(
+        self,
+        query: str,
+        session_id: str,
+    ) -> AsyncIterator[tuple[AgentEventTypeEnum, dict]]:
+        """
+        Stream agent processing events for a query.
+        """
+        task_manager = get_task_manager()
+        await task_manager.start()
+
+        task, is_new = await task_manager.get_or_create_task(session_id, query)
+
+        if is_new:
+            try:
+                await self.session_service.add_user_message(session_id, query)
+                session_history = await self.session_service.get_recent_messages(session_id, MAX_SESSION_CONTEXT_TURNS)
+
+                asyncio.create_task(self._process_query_background(task, session_history))
+            except Exception as e:
+                logger.error(f'Error starting background task: {e}', exc_info=True)
+                await task.add_event(AgentEventTypeEnum.ERROR, {'error': 'Failed to start processing'})
+
+        try:
+            async for event_type, data in task.subscribe():
+                yield (event_type, data)
+        except asyncio.CancelledError:
+            logger.info(f'Client disconnected from session {session_id}, but processing continues')
+            raise
+        except Exception as e:
+            logger.error(f'Error streaming events: {e}', exc_info=True)
+            yield (AgentEventTypeEnum.ERROR, {'error': 'Stream interrupted'})

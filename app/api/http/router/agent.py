@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -9,24 +10,38 @@ from api.http.schema.agent import AskAgentRequest, AskAgentResponseStreamChunkMo
 from core.enum.agent import AgentEventTypeEnum
 from service.agent import AgentService
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix='', tags=['Agent'])
 
 
 async def agent_response_stream(agent_service: AgentService, query: str, session_id: str):
-    async for event_type, data in agent_service.process_query_stream(query, session_id):
-        chunk = None
-        if event_type == AgentEventTypeEnum.CONTENT:
-            chunk = AskAgentResponseStreamChunkModel(content=data['content'])
-        elif event_type == AgentEventTypeEnum.STEP:
-            chunk = AskAgentResponseStreamChunkModel(step_description=data['description'], step_status=data['status'])
-        elif event_type == AgentEventTypeEnum.DONE:
-            chunk = AskAgentResponseStreamChunkModel(done=True)
-        elif event_type == AgentEventTypeEnum.ERROR:
-            chunk = AskAgentResponseStreamChunkModel(error=data['error'])
+    try:
+        async for event_type, data in agent_service.process_query_stream(query, session_id):
+            chunk = None
+            if event_type == AgentEventTypeEnum.CONTENT:
+                chunk = AskAgentResponseStreamChunkModel(content=data['content'])
+            elif event_type == AgentEventTypeEnum.STEP:
+                chunk = AskAgentResponseStreamChunkModel(
+                    step_description=data['description'], step_status=data['status']
+                )
+            elif event_type == AgentEventTypeEnum.DONE:
+                chunk = AskAgentResponseStreamChunkModel(done=True)
+            elif event_type == AgentEventTypeEnum.ERROR:
+                chunk = AskAgentResponseStreamChunkModel(error=data['error'])
 
-        if chunk is not None:
-            yield f'data: {json.dumps(chunk.model_dump())}\n\n'
-            await asyncio.sleep(0)
+            if chunk is not None:
+                yield f'data: {json.dumps(chunk.model_dump())}\n\n'
+                await asyncio.sleep(0)
+    except asyncio.CancelledError:
+        logger.info(f'Client disconnected from session {session_id}')
+    except Exception as e:
+        logger.error(f'Unexpected error in agent response stream: {e}', exc_info=True)
+        try:
+            error_chunk = AskAgentResponseStreamChunkModel(error='Stream interrupted unexpectedly')
+            yield f'data: {json.dumps(error_chunk.model_dump())}\n\n'
+        except Exception:
+            pass
 
 
 @router.post('/ask-agent', response_model=AskAgentResponseStreamChunkModel)

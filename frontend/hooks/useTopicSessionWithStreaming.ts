@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react';
-import type { TopicSessionHistoryTurn } from '@/types/topicSession';
+import type { TopicSessionHistory, TopicSessionHistoryTurn } from '@/types/topicSession';
 import { useAskAgent } from './useAskAgent';
 import { useTopicSession } from './useTopicSession';
 
@@ -11,6 +11,7 @@ interface UseTopicSessionWithStreamingResult {
   submitQuestion: (query: string, sessionId: string) => Promise<void>;
   reset: () => void;
   streamingCurrentStep: string | null;
+  topicSession: TopicSessionHistory | null;
 }
 
 export const useTopicSessionWithStreaming = (topicSessionId: string): UseTopicSessionWithStreamingResult => {
@@ -85,5 +86,6 @@ export const useTopicSessionWithStreaming = (topicSessionId: string): UseTopicSe
     submitQuestion,
     reset,
     streamingCurrentStep,
+    topicSession,
   };
 };

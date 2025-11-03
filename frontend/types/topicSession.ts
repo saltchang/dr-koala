@@ -31,4 +31,5 @@ export interface TopicSessionHistoryTurn {
 export interface TopicSessionHistory {
   id: string;
   turns: TopicSessionHistoryTurn[];
+  inProgressQuery: string | null;
 }

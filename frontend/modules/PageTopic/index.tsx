@@ -19,6 +19,7 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
   const [query, setQuery] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [hasStartedInitialQuery, setHasStartedInitialQuery] = useState(false);
+  const [hasReconnectedToInProgress, setHasReconnectedToInProgress] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastTurnRef = useRef<HTMLDivElement>(null);
   const previousTurnsLengthRef = useRef<number>(0);
@@ -31,10 +32,35 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
     submitQuestion,
     reset,
     streamingCurrentStep,
+    topicSession,
   } = useTopicSessionWithStreaming(topicSessionId);
 
   useEffect(() => {
+    if (hasReconnectedToInProgress || isLoadingHistory || isStreaming) {
+      return;
+    }
+
+    const inProgressQuery = topicSession?.inProgressQuery;
+
+    if (inProgressQuery?.trim()) {
+      submitQuestion(inProgressQuery, topicSessionId);
+      setHasReconnectedToInProgress(true);
+    }
+  }, [
+    topicSession?.inProgressQuery,
+    hasReconnectedToInProgress,
+    isLoadingHistory,
+    isStreaming,
+    submitQuestion,
+    topicSessionId,
+  ]);
+
+  useEffect(() => {
     if (hasStartedInitialQuery || typeof initialQuery !== 'string' || !initialQuery.trim() || isStreaming) {
+      return;
+    }
+
+    if (topicSession?.inProgressQuery) {
       return;
     }
 
@@ -42,7 +68,7 @@ function PageTopic({ topicSessionId }: PageTopicProps) {
 
     router.replace(`/topic/${topicSessionId}`, undefined, { shallow: true });
     setHasStartedInitialQuery(true);
-  }, [initialQuery, topicSessionId, hasStartedInitialQuery, submitQuestion, router, isStreaming]);
+  }, [initialQuery, topicSessionId, hasStartedInitialQuery, submitQuestion, router, isStreaming, topicSession]);
 
   useEffect(() => {
     if (!isStreaming && !isLoadingHistory && hasStartedInitialQuery) {

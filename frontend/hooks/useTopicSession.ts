@@ -21,6 +21,7 @@ export const useTopicSession = (topicSessionId: string, enabled: boolean) => {
     return {
       id: rawData.id,
       turns: rawData.turns,
+      inProgressQuery: rawData.in_progress_query ?? null,
     };
   }, [rawData]);
 

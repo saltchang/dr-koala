@@ -11,3 +11,4 @@ class RetrieveSessionResponseModel(BaseModel):
     id: str
     title: str
     turns: list[SessionTurn]
+    in_progress_query: str | None = None

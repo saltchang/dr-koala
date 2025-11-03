@@ -20,7 +20,12 @@ async def create_session(request: CreateSessionRequestModel, session_service: Se
 async def get_all_sessions(session_service: SessionServiceDependency):
     sessions = await session_service.get_all_sessions()
     return [
-        RetrieveSessionResponseModel(id=session.session_id, title=session.title, turns=session.get_turns())
+        RetrieveSessionResponseModel(
+            id=session.session_id,
+            title=session.title,
+            turns=session.get_turns(),
+            in_progress_query=session.get_in_progress_query(),
+        )
         for session in sessions
     ]
 
@@ -32,4 +37,9 @@ async def get_session_by_id(session_id: str, session_service: SessionServiceDepe
     if not session:
         raise NotFoundError('Session not found')
 
-    return RetrieveSessionResponseModel(id=session.session_id, title=session.title, turns=session.get_turns())
+    return RetrieveSessionResponseModel(
+        id=session.session_id,
+        title=session.title,
+        turns=session.get_turns(),
+        in_progress_query=session.get_in_progress_query(),
+    )
