@@ -4,8 +4,6 @@
   <h1>Dr. Koala</h1>
 
   <p>An AI-powered web application for answering users' questions by searching the web.</p>
-
-  <p>Demo app: <a href="https://dr-koala.saltchang.com" target="_blank">https://dr-koala.saltchang.com</a></p>
 </div>
 
 ## Table of Contents
@@ -119,7 +117,7 @@ cp .env.prod.example .env
 Then run the following command to start the server in production mode:
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up --remove-orphans -d
 ```
 
 ### Database Setup
