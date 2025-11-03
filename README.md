@@ -19,6 +19,7 @@
     - [Backend Environment Variables](#backend-environment-variables)
     - [Frontend Environment Variables](#frontend-environment-variables)
   - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
+  - [Quick Start with Docker Compose for Production](#quick-start-with-docker-compose-for-production)
   - [Database Setup](#database-setup)
   - [Start the Server](#start-the-server)
     - [Running Both Backend and Frontend](#running-both-backend-and-frontend)
@@ -105,8 +106,19 @@ You can quickly start the server with docker compose:
 ```bash
 # Development
 docker compose up -d
+```
 
-# Production
+### Quick Start with Docker Compose for Production
+
+Setup the production environment variables:
+
+```bash
+cp .env.prod.example .env
+```
+
+Then run the following command to start the server in production mode:
+
+```bash
 docker compose -f docker-compose.prod.yml up -d
 ```
 
