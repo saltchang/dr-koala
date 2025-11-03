@@ -1,74 +1,79 @@
-# Dr. Koala
+<div align="center">
+  <img src="./frontend/assets/dr-koala.svg" alt="The Logo of Dr. Koala" width="128" height="128"/>
 
-This project aims to provide a template for clean architecture in Python applications.
+  <h1>Dr. Koala</h1>
+
+  <p>An AI-powered web application for answering users' questions by searching the web.</p>
+
+  <p>Demo app: <a href="https://dr-koala.saltchang.com" target="_blank">https://dr-koala.saltchang.com</a></p>
+</div>
 
 ## Table of Contents
 
-- [Dr. Koala](#dr-koala)
-  - [Table of Contents](#table-of-contents)
-  - [Description](#description)
-  - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Setup Environment Variables](#setup-environment-variables)
-      - [Backend Environment Variables](#backend-environment-variables)
-      - [Frontend Environment Variables](#frontend-environment-variables)
-    - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
-    - [Database Setup](#database-setup)
-    - [Start the Server](#start-the-server)
-      - [Running Both Backend and Frontend](#running-both-backend-and-frontend)
-      - [Running Backend Only](#running-backend-only)
-      - [Running Frontend Only](#running-frontend-only)
-      - [With VSCode Debugger](#with-vscode-debugger)
-    - [Start the Frontend](#start-the-frontend)
-      - [Manual Setup](#manual-setup)
-      - [Using Make Command](#using-make-command)
-    - [Running Tests](#running-tests)
-      - [With uv in Command Line](#with-uv-in-command-line)
-      - [With Docker](#with-docker)
-    - [API Documentation](#api-documentation)
-  - [Editor Integration](#editor-integration)
+- [Table of Contents](#table-of-contents)
+- [Project Structure](#project-structure)
+- [AI Agents Collaboration](#ai-agents-collaboration)
+- [Preview](#preview)
+- [Getting Started](#getting-started)
+  - [Setup Environment Variables](#setup-environment-variables)
+    - [Backend Environment Variables](#backend-environment-variables)
+    - [Frontend Environment Variables](#frontend-environment-variables)
+  - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
+  - [Database Setup](#database-setup)
+  - [Start the Server](#start-the-server)
+    - [Running Both Backend and Frontend](#running-both-backend-and-frontend)
+    - [Running Backend Only](#running-backend-only)
+    - [Running Frontend Only](#running-frontend-only)
+    - [With VSCode Debugger](#with-vscode-debugger)
+  - [Start the Frontend](#start-the-frontend)
+    - [Manual Setup](#manual-setup)
+    - [Using Make Command](#using-make-command)
+  - [Running Tests](#running-tests)
+    - [With uv in Command Line](#with-uv-in-command-line)
+    - [With Docker](#with-docker)
+  - [API Documentation](#api-documentation)
+- [VSCode/Cursor Settings](#vscodecursor-settings)
+- [License](#license)
 
-## Description
+## Project Structure
 
-The main idea of [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) by [Robert C. Martin (Uncle Bob)](http://cleancoder.com) is to separate the concerns of the application into different layers, so that the application is more maintainable and scalable. Here are the main principles of clean architecture from the [original article](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html):
+Dr. Koala is built with Next.js as the frontend and FastAPI as the backend. Both follow the principles of [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). This project is using [python-clean-arch](https://github.com/saltchang/python-clean-arch) as the template.
 
-> - Independent of Frameworks. The architecture does not depend on the existence of some library of feature laden software. This allows you to use such frameworks as tools, rather than having to cram your system into their limited constraints.
-> - Testable. The business rules can be tested without the UI, Database, Web Server, or any other external element.
-> - Independent of UI. The UI can change easily, without changing the rest of the system. A Web UI could be replaced with a console UI, for example, without changing the business rules.
-> - Independent of Database. You can swap out Oracle or SQL Server, for Mongo, BigTable, CouchDB, or something else. Your business rules are not bound to the database.
-> - Independent of any external agency. In fact your business rules simply don’t know anything at all about the outside world.
-
-The diagram from the article also shows the different layers of the clean architecture and the dependencies between them:
-
-![Clean Architecture](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
-
-There is another diagram from [go-clean-arch](https://github.com/bxcodec/go-clean-arch) by [bxcodec](https://github.com/bxcodec) which is more intuitive for me:
-
-![Go Clean Architecture](https://raw.githubusercontent.com/bxcodec/go-clean-arch/master/clean-arch.png)
-
-Based on the concept of clean architecture, this project contains the following layers:
+Based on the concept of clean architecture, the backend application contains the following major layers:
 
 - Core layer (`/core`): The entities layer, which contains the core business rules and logic
 - Service layer (`/service`): The use cases layer, which contains the application of business rules and logic
 - Repository layer (`/repository`): The infrastructure layer, which contains the data access logic
 - API layer (`/api`): The presentation layer, which contains the HTTP API endpoints
 
+The frontend application contains the following major folders:
+
+- Components folder (`/components`): The UI components folder, which contains the reusable UI components
+- Modules folder (`/modules`): The module components folder, which contains the business logic for each page
+- Hooks folder (`/hooks`): The hooks folder, which contains the custom hooks for the application, including the API integration logic
+- Routes(pages) folder (`/pages`): The route components folder (in Next.js, it is the pages directory), which defines the routes for the application
+
+## AI Agents Collaboration
+
+Dr. Koala uses [AutoGen](https://github.com/microsoft/autogen) as the multi-agent framework. The prompt templates for the agents are defined in the `app/core/constant/agent_configs.toml` file.
+
+There are 3 main agents in Dr. Koala:
+
+- **Primary Agent**: For understanding the user's intentions, questions, and requirements by analyzing the user's input then planning the search, generation, and review tasks. Adjust the processing plan if needed.
+- **Search Agent**: For searching the web with the Brave Search MCP tool.
+- **Generation Agent**: For generating the final answer based on the searched results in the markdown format.
+
+## Preview
+
+![Preview](./docs/preview.png)
+
 ## Getting Started
-
-### Prerequisites
-
-- **Python**: 3.13+ (managed via `uv`)
-- **Node.js**: 24.10.0+ (managed via `proto`)
-- **PostgreSQL**: 17
-- **proto**: For managing Node.js versions ([install proto](https://moonrepo.dev/proto))
-- **uv**: For managing Python packages ([install uv](https://docs.astral.sh/uv/))
-- **pnpm**: For managing frontend packages (installed via proto)
 
 ### Setup Environment Variables
 
 #### Backend Environment Variables
 
-First, setup the backend environment variables, please refer to the `.env.example` file. Ask your team for the values. You can create a new `.env` file by running the following command:
+Create a new `.env` file by running the following command:
 
 ```bash
 cp .env.example .env
@@ -76,9 +81,9 @@ cp .env.example .env
 
 Required environment variables:
 
+- `DATABASE_URL`: PostgreSQL connection string
 - `XAI_API_KEY`: Your xAI API key for Grok
 - `BRAVE_SEARCH_API_KEY`: Your Brave Search API key for web searching
-- `DATABASE_URL`: PostgreSQL connection string
 
 #### Frontend Environment Variables
 
@@ -91,19 +96,23 @@ cp .env.example .env
 
 Optional environment variables:
 
-- `NEXT_PUBLIC_API_URL`: Backend API URL (default: `http://localhost:7086`)
+- `NEXT_PUBLIC_API_URL`: Backend API URL (default to `http://localhost:7086`, no need to change when running locally)
 
 ### Quick Start with Docker Compose
 
 You can quickly start the server with docker compose:
 
 ```bash
-docker compose -f docker-compose.yml up --remove-orphans -d
+# Development
+docker compose up -d
+
+# Production
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ### Database Setup
 
-In this example, we use PostgreSQL as the database, please make sure you have it installed locally, you can set the `DATABASE_URL` in the `.env` file to connect to your local database:
+In this example, we use PostgreSQL as the database. If you have it installed locally, you can set the `DATABASE_URL` in the `.env` file to connect to your local database:
 
 ```bash
 DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/dr_koala
@@ -112,7 +121,7 @@ DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/dr_koala
 Or you can use docker compose file we provided to quickly setup one:
 
 ```bash
-docker compose -f docker-compose.db.yml up --remove-orphans -d
+docker compose -f docker-compose.db.yml up -d
 ```
 
 You can change the `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` in the `.env` file to change the database info of docker container.
@@ -259,14 +268,14 @@ docker build -f Dockerfile.dev -t app-test --build-arg RUN_MODE=test . && docker
 
 Once the server is running, visit the Swagger UI at [http://localhost:7086/docs](http://localhost:7086/docs)
 
-## Editor Integration
+## VSCode/Cursor Settings
 
-- Language Server - [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance), which depends on [Pyright](https://microsoft.github.io/pyright/#/).
-
-- Linting and Formatting - [Ruff](https://github.com/astral-sh/ruff)
-
-For VSCode, run the following command to setup the editor config:
+For VSCode/Cursor, run the following command to setup the editor config:
 
 ```bash
 cp .vscode/settings.example.json .vscode/settings.json
 ```
+
+## License
+
+[MIT](./LICENSE)

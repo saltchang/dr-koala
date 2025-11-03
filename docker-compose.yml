@@ -1,5 +1,6 @@
 include:
-  - docker-compose.api.yml
   - docker-compose.db.yml
+  - docker-compose.api.yml
+  - frontend/docker-compose.client.yml
 
-name: dr-koala 
+name: dr-koala

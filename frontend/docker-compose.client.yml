@@ -1,0 +1,10 @@
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: dr-koala-client
+    ports:
+      - "3076:3076"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:7086

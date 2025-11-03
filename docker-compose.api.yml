@@ -1,17 +1,17 @@
 services:
-    web:
-      build:
-        context: .
-        dockerfile: Dockerfile.dev
-      container_name: dr-koala
-      ports:
-        - "7086:7086"
-      depends_on:
-        postgresql:
-          condition: service_healthy
-      environment:
-        APP_NAME: dr-koala
-        IS_DEVELOPMENT: true
-        LOG_LEVEL: INFO
-        DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgresql:5432/dr_koala
-        SHOULD_RESET_DATABASE: true
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: dr-koala-api
+    ports:
+      - "7086:7086"
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      APP_NAME: "Dr. Koala"
+      IS_DEVELOPMENT: true
+      LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgresql:5432/dr_koala
+      SHOULD_RESET_DATABASE: true
