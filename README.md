@@ -62,9 +62,11 @@ There are 3 main agents in Dr. Koala:
 - **Search Agent**: For searching the web with the Brave Search MCP tool.
 - **Generation Agent**: For generating the final answer based on the searched results in the markdown format.
 
-## Preview
+## Preview & Demo
 
 ![Preview](./docs/preview.png)
+
+https://github.com/user-attachments/assets/d329f705-1517-4bca-a8c8-f8688bbc4675
 
 ## Getting Started
 
