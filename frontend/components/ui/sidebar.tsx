@@ -136,7 +136,10 @@ function SidebarProvider({
               ...style,
             } as CSSProperties
           }
-          className={cn('group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full', className)}
+          className={cn(
+            'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full bg-background',
+            className,
+          )}
           {...props}
         >
           {children}
@@ -199,7 +202,7 @@ function Sidebar({
 
   return (
     <div
-      className="group peer text-sidebar-foreground hidden md:block"
+      className="group peer text-sidebar-foreground hidden md:block bg-background min-w-px"
       data-state={state}
       data-collapsible={state === 'collapsed' ? collapsible : ''}
       data-variant={variant}

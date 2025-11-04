@@ -101,12 +101,12 @@ function MainSidebar() {
                             <div className="truncate flex-1 text-left">{topicSession.query}</div>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {new Date(topicSession.timestamp).toLocaleTimeString()}
+                            {new Date(topicSession.timestamp).toLocaleString()}
                           </div>
                         </button>
                         <button
                           type="button"
-                          className="opacity-0 group-hover/item:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-destructive/10 rounded-sm cursor-pointer"
+                          className="opacity-100 md:opacity-0 md:group-hover/item:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-destructive/10 rounded-sm cursor-pointer"
                           onClick={(e) => handleDeleteClick(e, topicSession.id)}
                           aria-label="Delete session"
                         >

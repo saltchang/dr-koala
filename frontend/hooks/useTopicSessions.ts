@@ -16,16 +16,18 @@ export const useTopicSessions = () => {
   const topicSessions = useMemo<TopicSession[]>(() => {
     if (!data) return [];
 
-    return data.map((session) => {
-      const query = session.title;
-      const timestamp = session.turns[0]?.timestamp ?? new Date().toISOString();
+    return data
+      .map((session) => {
+        const query = session.title;
+        const timestamp = session.turns[0]?.timestamp ?? new Date().toISOString();
 
-      return {
-        id: session.id,
-        query,
-        timestamp,
-      };
-    });
+        return {
+          id: session.id,
+          query,
+          timestamp,
+        };
+      })
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }, [data]);
 
   return {

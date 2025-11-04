@@ -64,7 +64,7 @@ _fastapi = FastAPI(
 
 _fastapi.add_middleware(
     CORSMiddleware,
-    allow_origins=['http://localhost:3076', 'http://127.0.0.1:3076'],
+    allow_origins=['http://localhost:3076', 'http://127.0.0.1:3076', 'https://dr-koala.saltchang.com'],
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*'],

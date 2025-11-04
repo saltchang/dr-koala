@@ -39,7 +39,7 @@ function PageHome() {
   };
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center p-4 md:p-6 h-[80%]">
+    <main className="flex flex-1 flex-col items-center justify-center p-4 md:p-6 h-[80%] bg-background">
       <div className="flex flex-col items-center gap-6 mb-12 max-w-2xl">
         <SVG src={svgDrKoalaLogo.src} className="w-40 h-40" />
         <h1 className="text-4xl font-bold text-center">Dr. Koala</h1>
