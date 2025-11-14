@@ -1,6 +1,6 @@
 [project]
 name = "dr-koala"
-version = "0.1.0"
+version = "0.2.0"
 description = "This project aims to provide a template for clean architecture in Python applications."
 authors = [{ name = "Salt Chang", email = "me@saltchang.com" }]
 readme = "README.md"
@@ -32,7 +32,6 @@ dev = [
 multi_line_output = 3
 combine_as_imports = true
 include_trailing_comma = false
-
 force_grid_wrap = 2
 line_length = 120
 profile = "black"

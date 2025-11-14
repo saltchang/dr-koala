@@ -101,7 +101,7 @@ async def get_openapi_json():
         return _fastapi.openapi_schema
     openapi_schema = get_openapi(
         title=APP_NAME,
-        version='0.1.0',
+        version='0.2.0',
         routes=_fastapi.routes,
     )
     _fastapi.openapi_schema = openapi_schema

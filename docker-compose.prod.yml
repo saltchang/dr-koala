@@ -41,7 +41,11 @@ services:
       APP_NAME: "Dr. Koala"
       IS_DEVELOPMENT: false
       LOG_LEVEL: INFO
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/${POSTGRES_DB}
+      DB_HOST: postgresql
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       SHOULD_RESET_DATABASE: false
       XAI_API_KEY: ${XAI_API_KEY}
       BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY}

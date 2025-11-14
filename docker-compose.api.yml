@@ -13,5 +13,9 @@ services:
       APP_NAME: "Dr. Koala"
       IS_DEVELOPMENT: true
       LOG_LEVEL: INFO
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgresql:5432/dr_koala
+      DB_HOST: postgresql
+      DB_PORT: 5432
+      DB_NAME: dr_koala
+      DB_USER: postgres
+      DB_PASSWORD: postgres
       SHOULD_RESET_DATABASE: true

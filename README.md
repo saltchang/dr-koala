@@ -62,11 +62,11 @@ There are 3 main agents in Dr. Koala:
 - **Search Agent**: For searching the web with the Brave Search MCP tool.
 - **Generation Agent**: For generating the final answer based on the searched results in the markdown format.
 
-## Preview & Demo
+## Preview
 
 ![Preview](./docs/preview.png)
 
-https://github.com/user-attachments/assets/d329f705-1517-4bca-a8c8-f8688bbc4675
+<https://github.com/user-attachments/assets/d329f705-1517-4bca-a8c8-f8688bbc4675>
 
 ## Getting Started
 
@@ -82,7 +82,11 @@ cp .env.example .env
 
 Required environment variables:
 
-- `DATABASE_URL`: PostgreSQL connection string
+- `DB_HOST`: PostgreSQL host (default: `localhost`)
+- `DB_PORT`: PostgreSQL port (default: `5432`)
+- `DB_NAME`: PostgreSQL database name (default: `dr_koala`)
+- `DB_USER`: PostgreSQL user (default: `postgres`)
+- `DB_PASSWORD`: PostgreSQL password (default: `postgres`)
 - `XAI_API_KEY`: Your xAI API key for Grok
 - `BRAVE_SEARCH_API_KEY`: Your Brave Search API key for web searching
 
@@ -124,10 +128,14 @@ docker compose -f docker-compose.prod.yml up --remove-orphans -d
 
 ### Database Setup
 
-In this example, we use PostgreSQL as the database. If you have it installed locally, you can set the `DATABASE_URL` in the `.env` file to connect to your local database:
+In this example, we use PostgreSQL as the database. If you have it installed locally, you can set the database connection parameters in the `.env` file:
 
 ```bash
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/dr_koala
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=dr_koala
+DB_USER=postgres
+DB_PASSWORD=postgres
 ```
 
 Or you can use docker compose file we provided to quickly setup one:
@@ -138,7 +146,7 @@ docker compose -f docker-compose.db.yml up -d
 
 You can change the `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` in the `.env` file to change the database info of docker container.
 
-Please remember to align the `DATABASE_URL` with the `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` in the `.env` file.
+Please remember to align the `DB_NAME`, `DB_USER`, `DB_PASSWORD` with the `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` in the `.env` file.
 
 After the database is running, you can initialize the database by running the following commands:
 
