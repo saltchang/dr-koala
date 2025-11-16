@@ -45,7 +45,7 @@
   "plpgsqlLanguageServer.workspaceValidationTargetFiles": [],
   "cursorpyright.analysis.autoImportCompletions": true,
   "cursorpyright.analysis.autoSearchPaths": true,
-  "python.languageServer": "None",
+  "python.languageServer": "Pylance",
   "ruff.enable": true,
   "ruff.organizeImports": true,
   "ruff.fixAll": true,

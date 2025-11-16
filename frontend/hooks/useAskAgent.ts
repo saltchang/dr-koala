@@ -35,73 +35,82 @@ export const useAskAgent = (): UseAskAgentResult => {
     error: askAgentError,
   } = useMutation<void, Error, StreamVariables>({
     mutationFn: async ({ query, sessionId }) => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      abortControllerRef.current?.abort();
 
-      abortControllerRef.current = new AbortController();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       setContent('');
       setSteps([]);
       setCurrentStep(null);
 
-      return streamFunction<
-        components['schemas']['AskAgentRequest'],
-        components['schemas']['AskAgentResponseStreamChunkModel']
-      >({
-        path: '/ask-agent',
-        request: {
-          query,
-          session_id: sessionId,
-        },
-        onChunk: (chunk) => {
-          if (chunk.content) {
-            setContent((prev) => prev + chunk.content);
-          }
+      try {
+        await streamFunction<
+          components['schemas']['AskAgentRequest'],
+          components['schemas']['AskAgentResponseStreamChunkModel']
+        >({
+          path: '/ask-agent',
+          method: 'POST',
+          request: {
+            query,
+            session_id: sessionId,
+          },
+          onChunk: (chunk) => {
+            if (chunk.content) {
+              setContent((prev) => prev + chunk.content);
+            }
 
-          if (!chunk.step_description || !chunk.step_status) {
-            return;
-          }
+            if (!chunk.step_description || !chunk.step_status) {
+              return;
+            }
 
-          const newStep: ProcessingStep = {
-            description: chunk.step_description,
-            status: chunk.step_status,
-            timestamp: new Date().toISOString(),
-          };
+            const newStep: ProcessingStep = {
+              description: chunk.step_description,
+              status: chunk.step_status,
+              timestamp: new Date().toISOString(),
+            };
 
-          if (chunk.step_status === 'completed') {
-            setSteps((prev) => {
-              const existingIndex = prev.findIndex(
-                (s) => s.description === chunk.step_description && s.status === 'in_progress',
-              );
-              if (existingIndex !== -1) {
-                const updated = [...prev];
-                updated[existingIndex] = newStep;
-                return updated;
-              }
-              return [...prev, newStep];
-            });
+            if (chunk.step_status === 'completed') {
+              setSteps((prev) => {
+                const existingIndex = prev.findIndex(
+                  (s) => s.description === chunk.step_description && s.status === 'in_progress',
+                );
+                if (existingIndex !== -1) {
+                  const updated = [...prev];
+                  updated[existingIndex] = newStep;
+                  return updated;
+                }
+                return [...prev, newStep];
+              });
+              setCurrentStep(null);
+              return;
+            }
+
+            // in_progress step
+            setCurrentStep(chunk.step_description);
+            setSteps((prev) => [...prev, newStep]);
+          },
+          onError: (error) => {
+            if (error.name !== 'AbortError') {
+              throw error;
+            }
+          },
+          onComplete: () => {
             setCurrentStep(null);
-            return;
-          }
-
-          // in_progress step
-          setCurrentStep(chunk.step_description);
-          setSteps((prev) => [...prev, newStep]);
-        },
-        onError: (error) => {
-          throw error;
-        },
-        onComplete: () => {
-          setCurrentStep(null);
-          queryClient.invalidateQueries({
-            queryKey: useTopicSession.getQueryKey(sessionId),
-          });
-          queryClient.invalidateQueries({
-            queryKey: useTopicSessions.getQueryKey(),
-          });
-        },
-        signal: abortControllerRef.current.signal,
-      });
+            queryClient.invalidateQueries({
+              queryKey: useTopicSession.getQueryKey(sessionId),
+            });
+            queryClient.invalidateQueries({
+              queryKey: useTopicSessions.getQueryKey(),
+            });
+          },
+          signal: controller.signal,
+        });
+      } finally {
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
+        }
+      }
     },
   });
 

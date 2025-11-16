@@ -121,6 +121,7 @@ type StreamChunk<T = unknown> = T & {
 
 interface StreamOptions<TRequest = Record<string, unknown>, TChunk = unknown> {
   path: string;
+  method?: RequestInit['method'];
   request?: TRequest;
   onChunk?: (chunk: StreamChunk<TChunk>) => void;
   onError?: (error: Error) => void;
@@ -131,6 +132,7 @@ interface StreamOptions<TRequest = Record<string, unknown>, TChunk = unknown> {
 
 export const streamFunction = async <TRequest = Record<string, unknown>, TChunk = unknown>({
   path,
+  method = 'POST',
   request,
   onChunk,
   onError,
@@ -142,7 +144,7 @@ export const streamFunction = async <TRequest = Record<string, unknown>, TChunk 
   const url = getFetchUrl(path);
 
   const options: RequestInit = {
-    method: 'POST',
+    method,
     headers: {
       Accept: 'text/event-stream',
       'Content-Type': 'application/json',
@@ -160,8 +162,7 @@ export const streamFunction = async <TRequest = Record<string, unknown>, TChunk 
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
+    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
 
     if (!reader) {
       throw new Error('No response body');
@@ -171,12 +172,11 @@ export const streamFunction = async <TRequest = Record<string, unknown>, TChunk 
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n');
+      const chunks = value.split('\n\n');
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = JSON.parse(line.slice(6)) as StreamChunk<TChunk>;
+      for (const chunk of chunks) {
+        if (chunk.startsWith('data:')) {
+          const data: StreamChunk<TChunk> = JSON.parse(chunk.slice(5).trim());
 
           onChunk?.(data);
 
