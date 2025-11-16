@@ -17,7 +17,6 @@
   "[python]": {
     "diffEditor.ignoreTrimWhitespace": false,
     "editor.formatOnSave": true,
-    "editor.wordBasedSuggestions": "off",
     "editor.codeActionsOnSave": {
       "source.fixAll": "always"
     },
@@ -41,11 +40,10 @@
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "plpgsqlLanguageServer.enableExecuteFileQueryCommand": false,
-  "plpgsqlLanguageServer.workspaceValidationTargetFiles": [],
   "cursorpyright.analysis.autoImportCompletions": true,
   "cursorpyright.analysis.autoSearchPaths": true,
-  "python.languageServer": "Pylance",
+  "cursorpyright.analysis.autoFormatStrings": true,
+  "python.languageServer": "None",
   "ruff.enable": true,
   "ruff.organizeImports": true,
   "ruff.fixAll": true,
