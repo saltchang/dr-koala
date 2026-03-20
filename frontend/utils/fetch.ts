@@ -70,6 +70,7 @@ export const queryFunction: QueryFunction = async <TResponseData>({
 
   const options: RequestInit = {
     method: 'GET',
+    credentials: 'include',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -102,6 +103,7 @@ export const mutationFunction = async <TRequest = Record<string, unknown> | Form
 
   const options: RequestInit = {
     method,
+    credentials: 'include',
     headers: {
       Accept: 'application/json',
       ...(requestNotJson ? {} : { 'Content-Type': 'application/json' }),
@@ -145,6 +147,7 @@ export const streamFunction = async <TRequest = Record<string, unknown>, TChunk 
 
   const options: RequestInit = {
     method,
+    credentials: 'include',
     headers: {
       Accept: 'text/event-stream',
       'Content-Type': 'application/json',
